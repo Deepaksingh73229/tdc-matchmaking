@@ -13,9 +13,6 @@ interface MatchProps {
 }
 
 export default function SuggestedMatches({ matches, currentClientName, currentClientId }: MatchProps) {
-    // Track which specific match is currently being proposed to show a loading state
-    const [proposingId, setProposingId] = useState<string | null>(null);
-
     // Empty state if no matches are found
     if (!matches || matches.length === 0) {
         return (
@@ -26,37 +23,6 @@ export default function SuggestedMatches({ matches, currentClientName, currentCl
             </div>
         );
     }
-
-    const handlePropose = async (suggestedClientId: string, suggestedClientName: string) => {
-        setProposingId(suggestedClientId);
-
-        // Wrap the server action in a promise for the HeroUI Toast
-        const promise = proposeMatch(currentClientId, suggestedClientId).then((res) => {
-            if (!res.success) {
-                // If it's a "duplicate action" case, don't treat it as a hard error
-                if (res.error?.includes("already") || res.error?.includes("exists")) {
-                    return { duplicate: true, message: res.error };
-                }
-                throw new Error(res.error);
-            }
-            return res;
-        });
-
-        toast.promise(promise, {
-            loading: `Proposing match with ${suggestedClientName}...`,
-            success: (data: any) => data.duplicate 
-                ? data.message 
-                : `Match proposed successfully! Both clients have been notified.`,
-            error: (err) => err.message || "Failed to propose match."
-        });
-
-        // Reset loading state and catch only true errors
-        promise
-            .catch((err) => {
-                console.error("Match proposal failed:", err.message);
-            })
-            .finally(() => setProposingId(null));
-    };
 
     return (
         <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-stone-200 dark:border-slate-800 shadow-sm">
@@ -129,14 +95,14 @@ export default function SuggestedMatches({ matches, currentClientName, currentCl
                         </div>
 
                         {/* ─── Action Button ─── */}
-                        <button
-                            onClick={() => handlePropose(match.profile._id, match.profile.firstName)}
-                            disabled={proposingId === match.profile._id}
-                            className="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <HeartHandshake className="w-4 h-4" />
-                            {proposingId === match.profile._id ? "Proposing Match..." : "Propose Match"}
-                        </button>
+                        <Link href={`/dashboard/compare/${currentClientId}/${match.profile._id}`}>
+                            <button
+                                className="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg"
+                            >
+                                <HeartHandshake className="w-4 h-4" />
+                                Review & Propose Match
+                            </button>
+                        </Link>
 
                     </div>
                 ))}

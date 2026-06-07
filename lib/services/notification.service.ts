@@ -66,7 +66,7 @@ export const NotificationService = {
         return Notification.findByIdAndUpdate(
             id,
             { $set: { isRead: true } },
-            { new: true }
+            { returnDocument: "after" }
         ).lean();
     },
 
@@ -100,7 +100,7 @@ export const NotificationService = {
     /**
      * Finds and updates a single notification.
      */
-    async findOneAndUpdate(query: any, update: any, options: any = { new: true }) {
+    async findOneAndUpdate(query: any, update: any, options: any = { returnDocument: "after" }) {
         await connectDB();
         return Notification.findOneAndUpdate(query, update, options).lean();
     },

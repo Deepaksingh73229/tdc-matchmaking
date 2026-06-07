@@ -100,7 +100,8 @@ export default async function DashboardPage({
                     <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                         Welcome back, {session?.user?.name?.split(" ")[0] || "Matchmaker"}
                     </h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1">
+
+                    <p className="text-slate-500 dark:text-slate-400">
                         Here is your current roster of clients looking for a match.
                     </p>
                 </div>
@@ -111,10 +112,13 @@ export default async function DashboardPage({
                         <span className="block text-2xl font-bold text-rose-600 dark:text-rose-500">
                             {totalCount}
                         </span>
+
                         <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">
-                            {query || gender !== "All" || statusTag !== "All" || maritalStatus !== "All" || religion !== "All" || city !== "All"
-                                ? "Filtered"
-                                : "Total Clients"}
+                            {
+                                query || gender !== "All" || statusTag !== "All" || maritalStatus !== "All" || religion !== "All" || city !== "All"
+                                    ? "Filtered"
+                                    : "Total Clients"
+                            }
                         </span>
                     </div>
 
@@ -132,6 +136,7 @@ export default async function DashboardPage({
                         <span className="block text-2xl font-bold text-emerald-600">
                             {connectedCount}
                         </span>
+                        
                         <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold">
                             Connected
                         </span>

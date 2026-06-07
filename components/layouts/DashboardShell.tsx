@@ -74,7 +74,7 @@ export default function DashboardShell({ children, role, userName }: DashboardSh
     // Define navigation based on Role
     const matchmakerLinks = [
         { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-        // { name: "Client Roster", href: "/dashboard", icon: Users },
+        { name: "Matches", href: "/dashboard/matches", icon: HeartHandshake },
         { name: "My Profile", href: "/dashboard/profile", icon: Settings },
     ];
 

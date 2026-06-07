@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { User, Clock, CheckCircle2, HeartHandshake, FileText, Heart, Sparkles, XCircle, PauseCircle, Search } from "lucide-react";
+import { User, Clock, CheckCircle2, HeartHandshake, FileText, Heart, Sparkles, XCircle, PauseCircle, Search, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { revokeMatchProposal } from "@/lib/services/proposeMatch.service";
 
 interface ProposedMatchPanelProps {
     match: any;
@@ -11,6 +14,8 @@ interface ProposedMatchPanelProps {
 }
 
 export default function ProposedMatchPanel({ match, currentClientId, currentClientName }: ProposedMatchPanelProps) {
+    const [isRevoking, setIsRevoking] = useState(false);
+
     if (!match) return null;
 
     const isClientA = match.clientA._id.toString() === currentClientId;
@@ -18,6 +23,22 @@ export default function ProposedMatchPanel({ match, currentClientId, currentClie
     
     const myStatus = isClientA ? match.statusA : match.statusB;
     const theirStatus = isClientA ? match.statusB : match.statusA;
+
+    const handleRevoke = async () => {
+        setIsRevoking(true);
+        const promise = revokeMatchProposal(match._id).then((res) => {
+            if (!res.success) throw new Error(res.error);
+            return res;
+        });
+
+        toast.promise(promise, {
+            loading: "Revoking match proposal...",
+            success: "Proposal revoked successfully. Both clients are now Searching.",
+            error: (err) => err.message || "Failed to revoke proposal."
+        });
+
+        promise.catch(() => setIsRevoking(false));
+    };
 
     // Comprehensive Status Styling Helper
     const getStatusConfig = (status: string) => {
@@ -131,16 +152,16 @@ export default function ProposedMatchPanel({ match, currentClientId, currentClie
                 </div>
 
                 {/* Action Button */}
-                <Link href={`/dashboard/matches`}>
-                    <motion.button 
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        className="w-full py-3.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-colors hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white shadow-lg"
-                    >
-                        <FileText className="w-4 h-4" />
-                        Manage Match Proposal
-                    </motion.button>
-                </Link>
+                <motion.button 
+                    onClick={handleRevoke}
+                    disabled={isRevoking}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full py-3.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-colors shadow-sm disabled:opacity-50 disabled:pointer-events-none"
+                >
+                    {isRevoking ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                    {isRevoking ? "Revoking Proposal..." : "Revoke Proposal"}
+                </motion.button>
 
             </div>
         </motion.div>

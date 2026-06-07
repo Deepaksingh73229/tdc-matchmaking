@@ -23,7 +23,7 @@ import { generateMatchEmail } from "./generateMatchEmail.service";
  *  7. Send MATCH_PROPOSAL notifications to both clients.
  *  8. Revalidate relevant Next.js cache paths.
  */
-export async function proposeMatch(clientA_Id: string, clientB_Id: string) {
+export async function proposeMatch(clientA_Id: string, clientB_Id: string, customMessageA?: string, customMessageB?: string) {
     try {
         // ── Auth ────────────────────────────────────────────────────────────────
         const session = await getServerSession(authOptions);
@@ -103,17 +103,15 @@ export async function proposeMatch(clientA_Id: string, clientB_Id: string) {
         const allReasons = Array.from(new Set([...score1.reasons, ...score2.reasons]));
 
         // ── Generate AI intro messages ──────────────────────────────────────────
-        // Run in parallel; generateMatchEmail has its own fallback so this
-        // won't throw even if Gemini is temporarily unavailable.
         const [aiMsg1, aiMsg2] = await Promise.all([
-            generateMatchEmail(
+            customMessageA ? Promise.resolve({ text: customMessageA }) : generateMatchEmail(
                 client1.firstName,
                 client2.firstName,
                 score1.reasons,
                 score1.penalties
             ),
 
-            generateMatchEmail(
+            customMessageB ? Promise.resolve({ text: customMessageB }) : generateMatchEmail(
                 client2.firstName,
                 client1.firstName,
                 score2.reasons,
@@ -186,5 +184,134 @@ export async function proposeMatch(clientA_Id: string, clientB_Id: string) {
             success: false, 
             error: "Failed to propose match. Please try again." 
         };
+    }
+}
+
+export async function draftMatchProposal(clientA_Id: string, clientB_Id: string) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session || session.user.role !== "Matchmaker") {
+            return { success: false, error: "Unauthorized." };
+        }
+
+        const [id1, id2] = [clientA_Id, clientB_Id].sort();
+        const existingMatch = await MatchService.findOne({ clientA: id1, clientB: id2 });
+        if (existingMatch) {
+            return { success: false, error: `A match proposal already exists (status: ${existingMatch.overallStatus}).` };
+        }
+
+        const [client1, client2] = await Promise.all([
+            ClientService.findById(id1),
+            ClientService.findById(id2),
+        ]);
+
+        if (!client1 || !client2) return { success: false, error: "One or both clients not found." };
+        if (client1.statusTag !== "Searching" || client2.statusTag !== "Searching") {
+            return { success: false, error: "Both clients must be 'Searching'." };
+        }
+
+        const score1 = calculateWeightedScore(client1 as any, client2 as any);
+        const score2 = calculateWeightedScore(client2 as any, client1 as any);
+
+        let semanticBonus = 0;
+        if (
+            client1.profileEmbedding?.length &&
+            client2.profileEmbedding?.length &&
+            client1.profileEmbedding.length === client2.profileEmbedding.length
+        ) {
+            let dot = 0, magA = 0, magB = 0;
+            for (let i = 0; i < client1.profileEmbedding.length; i++) {
+                dot  += client1.profileEmbedding[i] * client2.profileEmbedding[i];
+                magA += client1.profileEmbedding[i] ** 2;
+                magB += client2.profileEmbedding[i] ** 2;
+            }
+            const cosineSim = (magA && magB) ? dot / (Math.sqrt(magA) * Math.sqrt(magB)) : 0;
+            const normalised = (1 + cosineSim) / 2;
+            semanticBonus = Math.round(normalised * 20);
+        }
+
+        const avgRuleScore = Math.round((score1.score + score2.score) / 2);
+        const avgScore = Math.min(100, avgRuleScore + semanticBonus);
+        let aiReason = "";
+        if (semanticBonus >= 15) {
+            aiReason = "Strong personality and lifestyle alignment detected by AI analysis.";
+        } else if (semanticBonus >= 8) {
+            aiReason = "Good personality compatibility based on AI analysis.";
+        }
+        
+        const allReasons = Array.from(new Set([
+            ...score1.reasons, 
+            ...score2.reasons,
+            ...(aiReason ? [aiReason] : [])
+        ]));
+
+        return {
+            success: true,
+            score: avgScore,
+            reasons: allReasons,
+            penalties1: score1.penalties,
+            penalties2: score2.penalties,
+            clientA: { _id: client1._id.toString(), firstName: client1.firstName },
+            clientB: { _id: client2._id.toString(), firstName: client2.firstName }
+        };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function generateSingleAIMessage(targetClientName: string, aboutClientName: string, reasons: string[], penalties: string[]) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session || session.user.role !== "Matchmaker") return { success: false, error: "Unauthorized" };
+
+        const msg = await generateMatchEmail(targetClientName, aboutClientName, reasons, penalties);
+        return { success: true, message: msg.text };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function revokeMatchProposal(matchId: string) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session || session.user.role !== "Matchmaker") return { success: false, error: "Unauthorized" };
+
+        const match = await MatchService.findById(matchId);
+        if (!match || match.overallStatus !== "Proposed") {
+            return { success: false, error: "Match not found or is no longer in Proposed status." };
+        }
+
+        await MatchService.updateById(matchId, { $set: { overallStatus: "Archived" } });
+
+        const clients = [match.clientA.toString(), match.clientB.toString()];
+        await ClientService.updateMany(
+            { _id: { $in: clients }, statusTag: "Proposed" },
+            { $set: { statusTag: "Searching" } }
+        );
+
+        await NotificationService.insertMany([
+            {
+                clientId: match.clientA.toString(),
+                title: "Match Proposal Withdrawn",
+                message: "A recent match proposal has been recalled by your Matchmaker. Your profile is now active in the matching pool again.",
+                type: "MATCH_DECLINED",
+                relatedId: matchId,
+            },
+            {
+                clientId: match.clientB.toString(),
+                title: "Match Proposal Withdrawn",
+                message: "A recent match proposal has been recalled by your Matchmaker. Your profile is now active in the matching pool again.",
+                type: "MATCH_DECLINED",
+                relatedId: matchId,
+            }
+        ]);
+
+        revalidatePath("/dashboard");
+        revalidatePath(`/dashboard/client/${match.clientA.toString()}`);
+        revalidatePath(`/dashboard/client/${match.clientB.toString()}`);
+
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
     }
 }

@@ -94,7 +94,6 @@ export async function PUT(req: Request) {
         );
 
         // If the client changes an important field, place them "On Hold"
-        // so the Matchmaker can review the changes and re-embed the profile.
         if (touchesEmbedding) {
             safeUpdates.statusTag = "On Hold";
         }
@@ -106,6 +105,38 @@ export async function PUT(req: Request) {
         );
 
         if (!updatedClient) return unauthorized("Client record not found.");
+
+        // Sync: if client went On Hold, abort any active matches
+        if (touchesEmbedding) {
+            const { MatchService } = await import("@/lib/services/match.service");
+            const { NotificationService } = await import("@/lib/services/notification.service");
+
+            const activeMatches = await MatchService.list({
+                $or: [{ clientA: session.user.id }, { clientB: session.user.id }],
+                overallStatus: { $in: ["Proposed", "Connected"] }
+            });
+
+            for (const match of activeMatches) {
+                // Archive match
+                await MatchService.updateById(match._id.toString(), { $set: { overallStatus: "Archived" } });
+
+                const partnerId = match.clientA.toString() === session.user.id ? match.clientB.toString() : match.clientA.toString();
+                const partner = await ClientService.findById(partnerId);
+
+                // Reset partner to searching
+                if (partner && ["Proposed", "Matched"].includes(partner.statusTag)) {
+                    await ClientService.updateById(partnerId, { $set: { statusTag: "Searching" } });
+                    
+                    await NotificationService.create({
+                        clientId: partnerId,
+                        title: "Match Update",
+                        message: "Your recent match has updated their profile and is undergoing verification. Your profile has been placed back in the active matching pool.",
+                        type: "MATCH_DECLINED",
+                        relatedId: match._id.toString()
+                    });
+                }
+            }
+        }
 
         return ok({
             message: "Profile updated successfully.",

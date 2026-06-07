@@ -40,7 +40,7 @@ export const MatchService = {
      */
     async updateById(id: string, update: any): Promise<IMatch | null> {
         await connectDB();
-        return Match.findByIdAndUpdate(id, update, { new: true }).lean();
+        return Match.findByIdAndUpdate(id, update, { returnDocument: "after" }).lean();
     },
 
     /**

@@ -34,7 +34,7 @@ export const MatchmakerService = {
      */
     async updateById(id: string, update: any) {
         await connectDB();
-        return Matchmaker.findByIdAndUpdate(id, update, { new: true }).lean();
+        return Matchmaker.findByIdAndUpdate(id, update, { returnDocument: "after" }).lean();
     },
 
     /**

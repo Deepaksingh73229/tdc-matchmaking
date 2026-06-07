@@ -47,7 +47,7 @@ export const ClientService = {
     /**
      * Updates a client by ID.
      */
-    async updateById(id: string, update: any, options: any = { new: true, runValidators: true }): Promise<IClient | null> {
+    async updateById(id: string, update: any, options: any = { returnDocument: "after", runValidators: true }): Promise<IClient | null> {
         await connectDB();
         return Client.findByIdAndUpdate(id, update, options).lean();
     },
