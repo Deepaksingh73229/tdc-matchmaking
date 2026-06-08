@@ -3,7 +3,8 @@
 import * as React from "react";
 import { LogOut, Moon, Sun, User } from "lucide-react";
 import { useTheme } from "next-themes";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 
 interface SidebarFooterProps {
     userName: string;
@@ -14,6 +15,7 @@ interface SidebarFooterProps {
 export function SidebarFooter({ userName, role, isCollapsed }: SidebarFooterProps) {
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = React.useState(false);
+    const { data: session } = useSession();
 
     React.useEffect(() => {
         setMounted(true);
@@ -30,17 +32,28 @@ export function SidebarFooter({ userName, role, isCollapsed }: SidebarFooterProp
                     }`}
                 >
                     {/* Dynamic Avatar */}
-                    <div className="w-[42px] h-[42px] rounded-2xl bg-gradient-to-br from-rose-100 to-rose-50 dark:from-rose-500/20 dark:to-rose-500/5 border border-rose-200/50 dark:border-rose-500/10 flex items-center justify-center shrink-0 shadow-sm shadow-rose-500/10 transition-transform duration-300 group-hover:scale-105">
-                        <User className="w-[22px] h-[22px] text-rose-600 dark:text-rose-400" strokeWidth={1.5} />
+                    <div className="w-[42px] h-[42px] rounded-2xl bg-gradient-to-br from-rose-100 to-rose-50 dark:from-rose-500/20 dark:to-rose-500/5 border border-rose-200/50 dark:border-rose-500/10 flex items-center justify-center shrink-0 shadow-sm shadow-rose-500/10 transition-transform duration-300 group-hover:scale-105 overflow-hidden">
+                        {session?.user?.image ? (
+                            <Image 
+                                src={session.user.image} 
+                                alt={userName} 
+                                width={45} 
+                                height={45} 
+                                className="w-full h-full object-cover" 
+                            />
+                        ) : (
+                            <User className="w-[22px] h-[22px] text-rose-600 dark:text-rose-400" strokeWidth={1.5} />
+                        )}
                     </div>
 
                     {/* User Info (Hidden when collapsed) */}
                     <div className={`flex-1 min-w-0 transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] overflow-hidden ${isCollapsed ? 'w-0 opacity-0 translate-x-2 hidden' : 'opacity-100 translate-x-0'}`}>
-                        <p className="text-[15px] font-semibold text-slate-800 dark:text-slate-100 truncate tracking-tight">
-                            {userName}
+                        <p className="text-lg font-black text-slate-800 dark:text-slate-100 truncate tracking-tight">
+                            {session?.user?.name || userName}
                         </p>
-                        <p className="text-[13px] font-medium text-slate-500 dark:text-slate-400 capitalize truncate">
-                            {role}
+
+                        <p className="text-sm font-medium text-slate-500 dark:text-slate-400 truncate">
+                            {session?.user?.email || role}
                         </p>
                     </div>
                 </div>
@@ -91,7 +104,6 @@ export function SidebarFooter({ userName, role, isCollapsed }: SidebarFooterProp
                         </button>
                     </div>
                 </div>
-
             </div>
         </div>
     );

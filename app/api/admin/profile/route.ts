@@ -45,7 +45,7 @@ export async function PUT(req: Request) {
         if (!requireRole(session, "Matchmaker")) return unauthorized();
 
         const body = await req.json();
-        const { name, currentPassword, newPassword } = body;
+        const { name, currentPassword, newPassword, profilePhoto } = body;
 
         const updateFields: Record<string, string> = {};
 
@@ -53,6 +53,11 @@ export async function PUT(req: Request) {
         if (name !== undefined) {
             if (!isNonEmptyString(name)) return badRequest("'name' cannot be empty.");
             updateFields.name = name.trim();
+        }
+
+        // ── Profile Photo update ──────────────────────────────────────────────────
+        if (profilePhoto !== undefined) {
+            updateFields.profilePhoto = profilePhoto.trim();
         }
 
         // ── Password change ──────────────────────────────────────────────────────
@@ -74,7 +79,7 @@ export async function PUT(req: Request) {
         }
 
         if (Object.keys(updateFields).length === 0) {
-            return badRequest("No updatable fields provided (name, newPassword).");
+            return badRequest("No updatable fields provided.");
         }
 
         await MatchmakerService.updateById(session.user.id, { $set: updateFields });

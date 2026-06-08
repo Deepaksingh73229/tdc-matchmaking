@@ -2,6 +2,11 @@
 
 🚀 **Live Demo:** [https://tdc-matchmaking.vercel.app/](https://tdc-matchmaking.vercel.app/)
 
+### 🔑 Demo Credentials (For Evaluation)
+To easily explore the system without registering, you can use the following test accounts:
+- **Universal Password:** `password123` (Applies to all admin and client accounts)
+- **Demo Client Account:** `kavya.singh100@yahoo.com`
+
 ![Next.js](https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)

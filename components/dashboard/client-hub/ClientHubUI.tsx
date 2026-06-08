@@ -5,9 +5,11 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import { Bell, User, Settings, ShieldCheck, ShieldAlert, Save, X, Camera, Loader2, MapPin, Heart, Coins, Baby } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function ClientHubUI({ client, initialNotifications }: { client: any, initialNotifications: any[] }) {
     const router = useRouter();
+    const { data: session, update } = useSession();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [notifications, setNotifications] = useState(initialNotifications);
@@ -44,6 +46,16 @@ export default function ClientHubUI({ client, initialNotifications }: { client: 
             if (!res.ok) throw new Error(data.message || "Failed to upload");
 
             setFormData((prev) => ({ ...prev, profilePhoto: data.photoUrl }));
+            
+            // Instantly sync next-auth session to update Sidebar Avatar
+            await update({
+                ...session,
+                user: {
+                    ...session?.user,
+                    image: data.photoUrl
+                }
+            });
+
             router.refresh();
             return data;
         });

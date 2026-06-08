@@ -28,7 +28,7 @@ export default function Navbar() {
             className={cn(
                 "fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300",
                 isScrolled 
-                    ? "backdrop-blur-2xl bg-white/70 dark:bg-slate-950/70 border-b border-stone-200 dark:border-slate-800 shadow-sm py-2" 
+                    ? "backdrop-blur-sm bg-white/10 dark:bg-slate-950/10 border-b border-stone-200 dark:border-slate-800 shadow-sm py-2" 
                     : "bg-transparent border-transparent py-4"
             )}
         >

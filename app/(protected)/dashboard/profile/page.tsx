@@ -1,19 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
-import { motion } from "motion/react";
-import { User, Lock, Mail, Save, Loader2, ShieldCheck, Fingerprint } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { User, Lock, Mail, Save, Loader2, ShieldCheck, Fingerprint, Camera } from "lucide-react";
+import Image from "next/image";
 import { toast } from "sonner";
 
 export default function AdminProfilePage() {
     const { data: session, update } = useSession();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [formData, setFormData] = useState({
         name: "",
         username: "",
+        profilePhoto: "",
         password: "",
         confirmPassword: ""
     });
@@ -26,8 +30,9 @@ export default function AdminProfilePage() {
                     const data = await res.json();
                     setFormData(prev => ({
                         ...prev,
-                        name: data.name || "",
-                        username: data.username || ""
+                        name: data.matchmaker.name || "",
+                        username: data.matchmaker.username || "",
+                        profilePhoto: data.matchmaker.profilePhoto || ""
                     }));
                 }
             } catch (error) {
@@ -44,6 +49,49 @@ export default function AdminProfilePage() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error("Image must be smaller than 5MB");
+            return;
+        }
+
+        setIsUploading(true);
+        const uploadData = new FormData();
+        uploadData.append("file", file);
+
+        const uploadPromise = fetch("/api/admin/upload-photo", {
+            method: "POST",
+            body: uploadData,
+        }).then(async (res) => {
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || "Failed to upload");
+
+            setFormData((prev) => ({ ...prev, profilePhoto: data.photoUrl }));
+            
+            // Update next-auth session immediately with the new photo
+            await update({
+                ...session,
+                user: {
+                    ...session?.user,
+                    image: data.photoUrl
+                }
+            });
+
+            return data;
+        });
+
+        toast.promise(uploadPromise, {
+            loading: "Encrypting and uploading to secure server...",
+            success: "Master portrait updated successfully!",
+            error: (err: any) => err.message
+        });
+
+        setIsUploading(false);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -56,12 +104,13 @@ export default function AdminProfilePage() {
         
         const savePromise = async () => {
             const res = await fetch("/api/admin/profile", {
-                method: "PATCH",
+                method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     name: formData.name,
-                    username: formData.username,
-                    password: formData.password || undefined
+                    profilePhoto: formData.profilePhoto,
+                    currentPassword: formData.password || undefined,
+                    newPassword: formData.password || undefined
                 })
             });
 
@@ -75,7 +124,8 @@ export default function AdminProfilePage() {
                 ...session,
                 user: {
                     ...session?.user,
-                    name: formData.name
+                    name: formData.name,
+                    image: formData.profilePhoto
                 }
             });
 
@@ -139,7 +189,7 @@ export default function AdminProfilePage() {
                 {/* ── Primary Identity Vault ── */}
                 <div className="bg-white/80 dark:bg-[#111218]/80 backdrop-blur-2xl rounded-[2rem] shadow-xl shadow-stone-200/20 dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-stone-200/60 dark:border-white/5 p-8 md:p-10 relative overflow-hidden group">
                     {/* Background Graphic */}
-                    <svg className="absolute -bottom-16 -right-16 w-64 h-64 text-stone-100 dark:text-white/[0.02] transform transition-transform duration-1000 group-hover:rotate-12 pointer-events-none" viewBox="0 0 100 100" fill="currentColor">
+                    <svg className="absolute -bottom-16 -right-16 w-64 h-64 text-stone-100 dark:text-white/10 transform transition-transform duration-1000 group-hover:rotate-12 pointer-events-none" viewBox="0 0 100 100" fill="currentColor">
                         <circle cx="50" cy="50" r="40" opacity="0.4" />
                         <circle cx="50" cy="50" r="20" opacity="0.8" />
                     </svg>
@@ -147,6 +197,63 @@ export default function AdminProfilePage() {
                     <div className="flex items-center gap-3 mb-8 relative z-10">
                         <User className="w-5 h-5 text-rose-500" strokeWidth={2} />
                         <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">Primary Identity</h3>
+                    </div>
+
+                    {/* ── Avatar Upload Section ── */}
+                    <div className="mb-8 pb-8 border-b border-stone-200/60 dark:border-white/5 relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-6">
+                        <div className="relative group/avatar shrink-0">
+                            {/* Avatar Container */}
+                            <div className="relative w-28 h-28 rounded-full bg-gradient-to-br from-stone-100 to-stone-50 dark:from-[#0A0B0E] dark:to-[#111218] border-[3px] border-white dark:border-[#1A1B23] overflow-hidden shadow-xl flex items-center justify-center transition-transform duration-500 group-hover/avatar:scale-[1.02]">
+                                {formData.profilePhoto ? (
+                                    <Image
+                                        src={formData.profilePhoto}
+                                        alt="Master Portrait"
+                                        fill
+                                        className="object-cover"
+                                        sizes="112px"
+                                    />
+                                ) : (
+                                    <User className="w-10 h-10 text-rose-300 dark:text-rose-900/50" strokeWidth={1.5} />
+                                )}
+
+                                <AnimatePresence>
+                                    {isUploading && (
+                                        <motion.div
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            className="absolute inset-0 bg-white/60 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-10"
+                                        >
+                                            <Loader2 className="w-6 h-6 text-rose-600 dark:text-rose-400 animate-spin" />
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+
+                            {/* Camera Floating Action Button */}
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isUploading}
+                                className="absolute bottom-0 right-0 w-9 h-9 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full flex items-center justify-center shadow-lg border-[3px] border-white dark:border-[#1A1B23] hover:scale-110 hover:bg-rose-600 dark:hover:bg-rose-500 dark:hover:text-white transition-all disabled:opacity-50 disabled:hover:scale-100 z-20"
+                            >
+                                <Camera className="w-4 h-4" strokeWidth={2} />
+                            </button>
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handlePhotoUpload}
+                                accept="image/jpeg, image/png, image/webp"
+                                className="hidden"
+                            />
+                        </div>
+
+                        <div className="space-y-1.5 text-center sm:text-left pt-2">
+                            <h4 className="text-[14px] font-bold text-slate-800 dark:text-slate-100 tracking-tight">Master Portrait</h4>
+                            <p className="text-[13px] text-slate-500 dark:text-slate-400 leading-relaxed max-w-sm">
+                                Upload a high-resolution image to represent your matchmaking identity. Maximum secure file size is 5MB.
+                            </p>
+                        </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
@@ -195,8 +302,8 @@ export default function AdminProfilePage() {
                 {/* ── Security Credentials Vault ── */}
                 <div className="bg-white/80 dark:bg-[#111218]/80 backdrop-blur-2xl rounded-[2rem] shadow-xl shadow-stone-200/20 dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-stone-200/60 dark:border-white/5 p-8 md:p-10 relative overflow-hidden group">
                     {/* Background Graphic */}
-                    <svg className="absolute -top-16 -right-16 w-64 h-64 text-rose-50 dark:text-rose-900/10 transform transition-transform duration-1000 group-hover:-rotate-12 pointer-events-none" viewBox="0 0 100 100" fill="currentColor">
-                        <path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z" opacity="0.8" />
+                    <svg className="absolute -top-16 -right-16 w-64 h-64 text-rose-100 dark:text-rose-900/30 transform transition-transform duration-1000 group-hover:-rotate-12 pointer-events-none" viewBox="0 0 100 100" fill="currentColor">
+                        <path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z" opacity="0.4" />
                     </svg>
 
                     <div className="flex items-center justify-between mb-8 relative z-10">
@@ -261,7 +368,7 @@ export default function AdminProfilePage() {
                         disabled={saving}
                         whileHover={{ scale: saving ? 1 : 1.02 }}
                         whileTap={{ scale: saving ? 1 : 0.98 }}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-10 py-4 bg-rose-600/80 dark:bg-rose-800/80 text-white text-[15px] font-bold rounded-[1.25rem] shadow-xl shadow-rose-500/20 hover:shadow-2xl hover:shadow-rose-500/30 transition-all disabled:opacity-70 disabled:pointer-events-none border border-rose-400/20"
+                        className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-10 py-4 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white text-[15px] font-bold rounded-[1.25rem] shadow-xl shadow-rose-500/20 hover:shadow-2xl hover:shadow-rose-500/30 transition-all disabled:opacity-70 disabled:pointer-events-none border border-rose-400/20"
                     >
                         {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                         {saving ? "Encrypting Data..." : "Secure & Save Changes"}

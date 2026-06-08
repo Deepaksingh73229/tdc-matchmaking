@@ -3,6 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface IMatchmaker extends Document {
     name: string;
     username: string;
+    profilePhoto?: string;
     passwordHash: string;
     isActive: boolean;
     createdAt: Date;
@@ -23,6 +24,12 @@ const MatchmakerSchema = new Schema<IMatchmaker>(
             unique: true,
             lowercase: true,
             trim: true,
+        },
+
+        profilePhoto: {
+            type: String,
+            trim: true,
+            default: ""
         },
 
         passwordHash: { 

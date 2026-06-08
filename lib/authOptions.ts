@@ -55,6 +55,7 @@ export const authOptions: NextAuthOptions = {
                     name: user.firstName || user.name, // Handle both Client and Matchmaker schemas
                     email: user.email || user.username,
                     role: role,
+                    image: user.profilePhoto || "",
                 };
             }
         }),
@@ -77,10 +78,12 @@ export const authOptions: NextAuthOptions = {
                 token.role = user.role;
                 token.name = user.name;
                 token.email = user.email;
+                token.picture = user.image;
             }
             if (trigger === "update" && session?.user) {
                 if (session.user.name) token.name = session.user.name;
                 if (session.user.email) token.email = session.user.email;
+                if (session.user.image) token.picture = session.user.image;
             }
             return token;
         },
@@ -92,6 +95,7 @@ export const authOptions: NextAuthOptions = {
                 session.user.role = token.role;
                 session.user.name = token.name;
                 session.user.email = token.email as string;
+                session.user.image = token.picture as string;
             }
             return session;
         },
