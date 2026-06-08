@@ -163,6 +163,13 @@ export async function PUT(req: Request) {
 
         await MatchService.updateById(matchId, { $set: { overallStatus: "Archived" } });
 
+        // Revert clients to "Searching" if they are currently "Proposed" or "Matched"
+        const clients = [match.clientA.toString(), match.clientB.toString()];
+        await ClientService.updateMany(
+            { _id: { $in: clients }, statusTag: { $in: ["Proposed", "Matched"] } },
+            { $set: { statusTag: "Searching" } }
+        );
+
         return ok({ message: "Match archived successfully." });
     } catch (err) {
         console.error("[PUT /api/admin/matches]", err);

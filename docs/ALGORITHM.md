@@ -1,5 +1,7 @@
 # The Hybrid Matchmaking Algorithm
 
+*Part of the [TDC Matchmaking Platform](../README.md) | 🚀 **Live Demo:** [tdc-matchmaking.vercel.app](https://tdc-matchmaking.vercel.app/)*
+
 The core engineering challenge of this assignment was developing a matchmaking algorithm that successfully captures the nuance of Indian matrimonial requirements. 
 
 Simple database queries are too rigid, while pure AI/LLM comparisons are too slow and unpredictable. Therefore, this system utilizes a **Hybrid Architecture**: an initial Semantic Vector Search followed by a deterministic Rule-Based Scoring Engine.

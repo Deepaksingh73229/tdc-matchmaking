@@ -3,9 +3,9 @@
 import Link from "next/link";
 // Notice the updated import path for the latest version!
 import { motion } from "motion/react";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { HeartHandshake, ShieldCheck, Sparkles, Users, ArrowRight, Heart } from "lucide-react";
+import { ShieldCheck, Sparkles, Users, ArrowRight, Heart } from "lucide-react";
 import Footer from "./Footer";
+import Navbar from "./Navbar";
 
 export default function HomePageUI() {
     // Animation variants for staggered entrance
@@ -42,37 +42,10 @@ export default function HomePageUI() {
             <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-amber-100 dark:bg-amber-900/10 rounded-full mix-blend-multiply dark:mix-blend-lighten filter blur-3xl opacity-60 animate-blob animation-delay-4000"></div>
 
             {/* ─── Top Navigation (Public) ─── */}
-            <header className="absolute top-0 w-full px-6 py-6 z-50 flex justify-between items-center max-w-7xl mx-auto left-0 right-0">
-                <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="flex items-center gap-2"
-                >
-                    <HeartHandshake className="w-8 h-8 text-rose-600 dark:text-rose-500" />
-                    <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">TDC</span>
-                </motion.div>
-
-                <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <div className="flex items-center gap-5">
-                        <ThemeToggle />
-
-                        <Link
-                            href="/login"
-                            className="text-sm font-semibold px-5 py-2.5 rounded-full bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border border-stone-200 dark:border-slate-800 text-slate-900 dark:text-white hover:bg-white dark:hover:bg-slate-800 transition-all shadow-sm"
-                        >
-                            Member Login
-                        </Link>
-                    </div>
-                </motion.div>
-            </header>
+            <Navbar />
 
             {/* ─── Hero Section ─── */}
-            <main className="relative z-10 max-w-7xl mx-auto px-6 pt-24 pb-16 flex flex-col items-center text-center">
+            <main className="relative z-10 max-w-7xl mx-auto px-6 pt-28 pb-16 flex flex-col items-center text-center">
 
                 {/* Floating Heart Decoration */}
                 <motion.div

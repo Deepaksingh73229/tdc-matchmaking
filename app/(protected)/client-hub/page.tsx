@@ -2,9 +2,16 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/authOptions";
 import { redirect } from "next/navigation";
 import { ClientService } from "@/lib/services/client.service";
-import ClientPortalUI from "@/components/dashboard/ClientPortalUI";
+import ClientProfile from "@/components/dashboard/clients/ClientProfile";
 
 export const dynamic = "force-dynamic";
+
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "My Portal | TDC Matchmaker",
+    description: "Your personal client portal for The Date Crew.",
+};
 
 export default async function ClientHubPage() {
     // 1. Authenticate and enforce Role-Based Access Control
@@ -31,6 +38,6 @@ export default async function ClientHubPage() {
     const serializedClient = JSON.parse(JSON.stringify(clientData));
 
     return (
-        <ClientPortalUI client={serializedClient} />
+        <ClientProfile client={serializedClient} editable={true} />
     );
 }

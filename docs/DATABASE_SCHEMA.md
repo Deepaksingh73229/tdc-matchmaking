@@ -1,5 +1,7 @@
 # Database Schema & Models
 
+*Part of the [TDC Matchmaking Platform](../README.md) | 🚀 **Live Demo:** [tdc-matchmaking.vercel.app](https://tdc-matchmaking.vercel.app/)*
+
 The TDC platform uses **MongoDB** as its primary database, interfaced via **Mongoose v9**. 
 
 This document outlines the core collections, their relationships, and the strict TypeScript interfaces that enforce data integrity across the application.

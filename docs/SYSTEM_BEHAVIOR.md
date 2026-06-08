@@ -1,5 +1,7 @@
 # System Behavior & Architecture
 
+*Part of the [TDC Matchmaking Platform](../README.md) | 🚀 **Live Demo:** [tdc-matchmaking.vercel.app](https://tdc-matchmaking.vercel.app/)*
+
 This document details the architectural decisions, state management, security protocols, and data modeling behaviors of the TDC Matchmaking platform.
 
 ---

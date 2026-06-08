@@ -3,6 +3,13 @@ import { authOptions } from "@/lib/authOptions";
 import { redirect } from "next/navigation";
 import HomePageUI from "@/components/layouts/HomePageUI";
 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+    title: "Home | TDC Matchmaker",
+    description: "Welcome to The Date Crew Matchmaker Portal",
+};
+
 export default async function Home() {
     // 1. Check for an active session
     const session = await getServerSession(authOptions);

@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { HeartHandshake } from "lucide-react";
+import Image from "next/image";
 
 export default function RegisterLoading() {
     return (
@@ -9,7 +9,7 @@ export default function RegisterLoading() {
             <div className="relative w-full max-w-md p-8 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-stone-200 dark:border-slate-800 rounded-3xl shadow-xl">
                 <div className="flex flex-col items-center mb-8">
                     <div className="p-3 bg-rose-100/50 dark:bg-rose-900/20 rounded-2xl mb-4">
-                        <HeartHandshake className="w-8 h-8 text-rose-600/50 dark:text-rose-500/50" />
+                        <Image src="/logo100.png" alt="TDC Logo" width={32} height={32} className="w-8 h-8 rounded-lg" />
                     </div>
                     <Skeleton className="h-8 w-48 mb-2" />
                     <Skeleton className="h-4 w-56" />

@@ -1,6 +1,6 @@
 "use client"
 
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -23,18 +23,14 @@ import {
 
 import {
     LogOut,
-    Settings,
     UserCircle,
 } from "lucide-react";
 
-import { useState } from "react";
 import Link from "next/link";
 
-export default function Profile({ type }) {
+export default function Profile() {
     const router = useRouter();
-    const [errors, setErrors] = useState({});
     const { data: session, status } = useSession();
-    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
     const items = [
         {
@@ -46,21 +42,13 @@ export default function Profile({ type }) {
     ]
 
     const handleSignOut = async () => {
-        setIsGoogleLoading(true);
-        setErrors({});
-
         try {
             await signOut({
                 callbackUrl: "/",
                 redirect: true
             });
-
         } catch (error) {
             console.error("Sign Out error:", error);
-            setErrors({
-                form: "Failed to sign out. Please try again.",
-            });
-            setIsGoogleLoading(false);
         }
     };
 
@@ -126,13 +114,12 @@ export default function Profile({ type }) {
                     </DropdownMenuContent>
                 </DropdownMenu>
             ) : (
-                <Button
-                    className="px-3 py-4 font-mono font-semibold rounded-3xl bg-neutral-100/20 hover:bg-neutral-100/10 border text-neutral-700 dark:text-neutral-100"
+                <Link
+                    href="/login"
+                    className="text-sm font-semibold px-5 py-2.5 rounded-full bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border border-stone-200 dark:border-slate-800 text-slate-900 dark:text-white hover:bg-white dark:hover:bg-slate-800 transition-all shadow-sm"
                 >
-                    <Link href="/login">
-                        Sign In
-                    </Link>
-                </Button>
+                    Member Login
+                </Link>
 
             )}
         </>

@@ -5,7 +5,6 @@ import "./globals.css";
 import Navbar from "@/components/layouts/Navbar"
 import Footer from "@/components/layouts/Footer"
 import { Toaster } from "sonner"
-import StoreProvider from "@/components/wrappers/StoreProvider";
 import { NextAuthProvider } from "@/components/wrappers/Providers";
 import { ThemeProvider } from "@/components/wrappers/theme-provider";
 
@@ -37,7 +36,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     disableTransitionOnChange
                 >
                     <NextAuthProvider>
-                        <StoreProvider>
                             {/* <Navbar /> */}
 
                             {children}
@@ -54,7 +52,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                             />
 
                             {/* <Footer /> */}
-                        </StoreProvider>
                     </NextAuthProvider>
                 </ThemeProvider>
             </body>

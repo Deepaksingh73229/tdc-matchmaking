@@ -24,7 +24,7 @@ export default function Footer() {
                     </div>
 
                     <p className="text-lg lg:text-xl text-slate-500 dark:text-slate-400 leading-relaxed max-w-lg">
-                        We don't just rely on algorithms; we bridge the gap between AI compatibility and <span className="text-slate-900 dark:text-white font-semibold italic">human intuition</span> to curate lasting relationships. 💍
+                        We don&apos;t just rely on algorithms; we bridge the gap between AI compatibility and <span className="text-slate-900 dark:text-white font-semibold italic">human intuition</span> to curate lasting relationships. 💍
                     </p>
                 </div>
 

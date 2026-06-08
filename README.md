@@ -1,5 +1,13 @@
 # The Date Crew (TDC) - Matchmaking Platform
 
+🚀 **Live Demo:** [https://tdc-matchmaking.vercel.app/](https://tdc-matchmaking.vercel.app/)
+
+![Next.js](https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+
 Welcome to the repository for **The Date Crew (TDC)**, a comprehensive matchmaking platform and administrative dashboard built as an assignment. The core objective of this project is to provide a sophisticated, AI-enhanced matchmaking system tailored specifically for Indian matrimonial preferences, alongside a powerful dashboard for matchmakers to manage clients and propose matches.
 
 ---

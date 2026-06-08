@@ -96,11 +96,12 @@ export async function GET(req: Request) {
         ]);
 
         // Quick status breakdown for dashboard KPI cards
-        const [pending, searching, onHold, matched] = await Promise.all([
+        const [pending, searching, onHold, matched, proposed] = await Promise.all([
             ClientService.count({ statusTag: "Pending" }),
             ClientService.count({ statusTag: "Searching" }),
             ClientService.count({ statusTag: "On Hold" }),
             ClientService.count({ statusTag: "Matched" }),
+            ClientService.count({ statusTag: "Proposed" }),
         ]);
 
         return ok({
@@ -111,7 +112,7 @@ export async function GET(req: Request) {
                 total,
                 totalPages: Math.ceil(total / limit),
             },
-            stats: { pending, searching, onHold, matched },
+            stats: { pending, searching, onHold, matched, proposed },
         });
     } catch (err) {
         console.error("[GET /api/admin/clients]", err);

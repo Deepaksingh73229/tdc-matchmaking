@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { HeartHandshake, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import Image from "next/image";
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -36,12 +37,15 @@ export default function RegisterPage() {
             if (res.ok) {
                 toast.success("Account created successfully! Please log in.");
                 router.push("/login");
-            } else {
+            } 
+            else {
                 toast.error(data.message || "Registration failed.");
             }
-        } catch (error) {
+        } 
+        catch (error) {
             toast.error("An unexpected error occurred.");
-        } finally {
+        } 
+        finally {
             setIsLoading(false);
         }
     };
@@ -53,10 +57,14 @@ export default function RegisterPage() {
 
             <div className="relative w-full max-w-md p-8 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-stone-200 dark:border-slate-800 rounded-3xl shadow-xl">
                 <div className="flex flex-col items-center mb-8">
-                    <div className="p-3 bg-rose-100 dark:bg-rose-900/30 rounded-2xl mb-4">
-                        <HeartHandshake className="w-8 h-8 text-rose-600 dark:text-rose-500" />
-                    </div>
-                    <h1 className="text-2xl font-bold tracking-tight">Create an Account</h1>
+                    <Link href="/" className="flex flex-col items-center group">
+                        <Image src="/logo100.png" alt="TDC Logo" width={48} height={48} className="w-12 h-12" />
+
+                        <h1 className="text-2xl font-bold tracking-tight group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">
+                            Create an Account
+                        </h1>
+                    </Link>
+
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 text-center">
                         Join TDC to find your perfect match.
                     </p>
@@ -74,6 +82,7 @@ export default function RegisterPage() {
                                 className="w-full px-4 py-2.5 rounded-xl bg-white dark:bg-slate-950 border border-stone-200 dark:border-slate-700 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-all"
                             />
                         </div>
+                        
                         <div>
                             <label className="block text-sm font-medium mb-1">Last Name</label>
                             <input

@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { HeartHandshake } from "lucide-react";
+import Image from "next/image";
 
 export default function Loading() {
     return (
@@ -12,7 +12,7 @@ export default function Loading() {
             {/* ─── Top Navigation ─── */}
             <header className="absolute top-0 w-full px-6 py-6 z-50 flex justify-between items-center max-w-7xl mx-auto left-0 right-0">
                 <div className="flex items-center gap-2">
-                    <HeartHandshake className="w-8 h-8 text-rose-600/50 dark:text-rose-500/50" />
+                    <Image src="/logo100.png" alt="TDC Logo" width={32} height={32} className="w-8 h-8 rounded-lg" />
                     <Skeleton className="h-7 w-12" />
                 </div>
                 <div className="flex items-center gap-5">

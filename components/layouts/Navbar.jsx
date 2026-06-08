@@ -1,60 +1,49 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import Link from 'next/link'
-// import { signIn } from "next-auth/react";
-// import { useSession, signOut } from "next-auth/react";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { HeartHandshake, Stethoscope } from "lucide-react";
+import Image from 'next/image'
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import Profile from "@/components/layouts/navbar/Profile";
-// import { useAppDispatch, useAppSelector } from "@/lib/store/hooks/index";
-// import { setSessions, addSession } from "@/lib/store/features/sessionSlice";
-
-
-// import logo from "@/app/icon0.svg"
+import { cn } from "@/lib/utils";
 
 export default function Navbar() {
-    const [auth, setAuth] = useState(false);
-    // const dispatch = useAppDispatch();
+    const [isScrolled, setIsScrolled] = useState(false);
 
-    // useEffect(() => {
-    //     const fetchSessions = async () => {
-    //         const response = await fetch('/api/session', {
-    //             method: 'GET'
-    //         });
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 10) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
 
-    //         const { sessionsData } = await response.json()
-    //         console.log("Session Details: ", sessionsData)
-
-    //         dispatch(setSessions(sessionsData));
-
-    //         // console.log("All Sessions are: ", sessions)
-    //     }
-
-    //     fetchSessions()
-    // }, [])
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
     return (
-        <nav className="place-self-center w-full max-w-4xl fixed top-5 z-50 border rounded-4xl border-black/20 dark:border-gray-800 bg-white/10 dark:bg-neutral-950/50 backdrop-blur-lg">
-            <div className="flex items-center justify-between px-5 py-1.5">
-                <Link href="/dashboard" className="flex items-center space-x-3 group">
-                    <div className="p-2 bg-rose-100 dark:bg-rose-900/30 rounded-full group-hover:bg-rose-200 dark:group-hover:bg-rose-900/50 transition-colors duration-300">
-                        <HeartHandshake className="w-6 h-6 text-rose-600 dark:text-rose-500" />
-                    </div>
+        <nav 
+            className={cn(
+                "fixed top-0 left-0 right-0 w-full z-50 transition-all duration-300",
+                isScrolled 
+                    ? "backdrop-blur-2xl bg-white/70 dark:bg-slate-950/70 border-b border-stone-200 dark:border-slate-800 shadow-sm py-2" 
+                    : "bg-transparent border-transparent py-4"
+            )}
+        >
+            <div className="flex items-center justify-between px-6 max-w-7xl mx-auto w-full">
+                <Link href="/" className="flex items-center gap-2 group">
+                    <Image src="/logo100.png" alt="TDC Logo" width={32} height={32} className="w-8 h-8" />
 
-                    <span className="font-bold text-xl tracking-wide text-slate-900 dark:text-white">
-                        TDC Matchmaker
+                    <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">
+                        TDC <span className="hidden sm:inline">Matchmaker</span>
                     </span>
                 </Link>
 
-                <div className=" flex items-center gap-5">
+                <div className="flex items-center gap-5">
                     <ThemeToggle />
-
                     <Profile />
-
-                    {/* <Button asChild className="font-mono font-semibold rounded-3xl bg-neutral-100/20 hover:bg-neutral-100/10 border text-neutral-700 dark:text-neutral-100">
-                        <Link href="/login">Sign In</Link>
-                    </Button> */}
                 </div>
             </div>
         </nav>

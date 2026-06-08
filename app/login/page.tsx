@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { HeartHandshake, Loader2 } from "lucide-react";
-import { toast } from "sonner"; // 1. Imported HeroUI Toast
-import { Suspense } from "react";
+import { toast } from "sonner";
+import { signIn } from "next-auth/react";
+import { useState, Suspense } from "react";
+import { Loader2 } from "lucide-react";
+import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
+
 
 function LoginContent() {
     const router = useRouter();
@@ -16,8 +17,6 @@ function LoginContent() {
     const [username, setUsername] = useState("admin"); // Pre-filled for the assignment reviewers
     const [password, setPassword] = useState("password123"); // Pre-filled
     const [isLoading, setIsLoading] = useState(false);
-
-    // Note: We removed the local 'error' state because HeroUI Toast handles it now!
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,17 +31,15 @@ function LoginContent() {
             });
 
             if (res?.error) {
-                // 2. Beautiful error toast
                 toast.error("Invalid username or password.");
                 setIsLoading(false);
-            } else {
-                // 3. Beautiful success toast
+            }
+            else {
                 toast.success("Welcome back!");
-                // Your proxy.ts will automatically handle routing Clients to /client-hub 
-                // and Admins to /dashboard if needed.
                 router.push(callbackUrl);
             }
-        } catch (err) {
+        }
+        catch (err) {
             toast.error("An unexpected error occurred.");
             setIsLoading(false);
         }
@@ -59,12 +56,20 @@ function LoginContent() {
             <div className="relative w-full max-w-md p-8 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-stone-200 dark:border-slate-800 rounded-3xl shadow-xl animate-slide-up">
 
                 <div className="flex flex-col items-center mb-8">
-                    <div className="p-3 bg-rose-100 dark:bg-rose-900/30 rounded-2xl mb-4 shadow-inner">
-                        <HeartHandshake className="w-10 h-10 text-rose-600 dark:text-rose-500" />
-                    </div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-                        TDC Matchmaker
-                    </h1>
+                    <Link href="/" className="flex flex-col items-center group">
+                        <Image
+                            src="/logo100.png"
+                            alt="TDC Logo"
+                            width={48}
+                            height={48}
+                            className="w-12 h-12"
+                        />
+
+                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">
+                            TDC Matchmaker
+                        </h1>
+                    </Link>
+
                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 text-center">
                         Sign in to manage your account or curate perfect matches.
                     </p>
@@ -77,6 +82,7 @@ function LoginContent() {
                             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                                 Email or Username
                             </label>
+
                             <input
                                 type="text"
                                 value={username}
@@ -92,6 +98,7 @@ function LoginContent() {
                             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                                 Password
                             </label>
+
                             <input
                                 type="password"
                                 value={password}
@@ -128,6 +135,7 @@ function LoginContent() {
                             Sign up here
                         </Link>
                     </p>
+
                     <p className="mt-4 text-xs text-slate-400 dark:text-slate-600">
                         For reviewers: Admin credentials are pre-filled.
                     </p>

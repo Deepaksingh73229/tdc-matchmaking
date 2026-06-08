@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "components/theme-toggle.jsx"  ],
+, "components/ui/theme-toggle.jsx"  ],
   "exclude": ["node_modules"]
 }
