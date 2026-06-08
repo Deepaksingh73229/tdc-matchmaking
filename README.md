@@ -5,6 +5,7 @@
 ### 🔑 Demo Credentials (For Evaluation)
 To easily explore the system without registering, you can use the following test accounts:
 - **Universal Password:** `password123` (Applies to all admin and client accounts)
+- **Demo Admin Account:** `admin`
 - **Demo Client Account:** `kavya.singh100@yahoo.com`
 
 ![Next.js](https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white)

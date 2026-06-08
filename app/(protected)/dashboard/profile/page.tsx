@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { User, Lock, Mail, Save, Loader2, ShieldCheck, Fingerprint, Camera } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 
 export default function AdminProfilePage() {
     const { data: session, update } = useSession();
@@ -141,24 +142,8 @@ export default function AdminProfilePage() {
         setSaving(false);
     };
 
-    // ─── Premium Loading State ───
     if (loading) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6 relative">
-                <div className="relative w-24 h-24 flex items-center justify-center">
-                    <div className="absolute inset-0 bg-rose-400/20 dark:bg-rose-500/10 rounded-full blur-xl animate-pulse"></div>
-                    <svg className="w-full h-full text-rose-300 dark:text-rose-500 animate-[spin_8s_linear_infinite]" viewBox="0 0 100 100" fill="none">
-                        <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 4" opacity="0.6"/>
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <Loader2 className="w-8 h-8 text-rose-500 animate-spin" />
-                    </div>
-                </div>
-                <div className="text-center space-y-2">
-                    <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">Accessing Vault...</h2>
-                </div>
-            </div>
-        );
+        return <LoadingScreen />;
     }
 
     return (

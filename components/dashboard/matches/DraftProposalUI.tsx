@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { User, Sparkles, HeartHandshake, CheckCircle2, ChevronLeft, Bot, Loader2, MapPin, Target, Zap, Wand2, AlertCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 import { draftMatchProposal, proposeMatch, generateSingleAIMessage } from "@/lib/services/proposeMatch.service";
 
 interface DraftProposalUIProps {
@@ -97,27 +98,8 @@ export default function DraftProposalUI({ clientA, clientB }: DraftProposalUIPro
             .catch(() => setIsSubmitting(false));
     };
 
-    // ─── Premium Loading State ───
     if (isLoading) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[70vh] space-y-6 relative">
-                {/* Abstract Connection Animation */}
-                <div className="relative w-32 h-32 flex items-center justify-center">
-                    <div className="absolute inset-0 bg-rose-400/20 dark:bg-rose-500/10 rounded-full blur-xl animate-pulse"></div>
-                    <svg className="w-full h-full text-rose-300 dark:text-rose-500 animate-[spin_8s_linear_infinite]" viewBox="0 0 100 100" fill="none">
-                        <circle cx="50" cy="50" r="40" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" opacity="0.6"/>
-                        <circle cx="50" cy="50" r="25" stroke="currentColor" strokeWidth="1" strokeDasharray="2 4" opacity="0.8"/>
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <Loader2 className="w-8 h-8 text-rose-500 animate-spin" />
-                    </div>
-                </div>
-                <div className="text-center space-y-2">
-                    <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">Calculating Synergy...</h2>
-                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest">AI Engine Analyzing Profiles</p>
-                </div>
-            </div>
-        );
+        return <LoadingScreen />;
     }
 
     // ─── Error / Null State ───
@@ -210,7 +192,7 @@ export default function DraftProposalUI({ clientA, clientB }: DraftProposalUIPro
                 {/* ─── Client A Column ─── */}
                 <div className="bg-white/90 dark:bg-[#111218]/90 backdrop-blur-2xl rounded-[2.5rem] border border-stone-200/60 dark:border-white/5 shadow-2xl shadow-stone-200/20 dark:shadow-none flex flex-col overflow-hidden group/col">
                     
-                    {/* Dossier Header */}
+                    {/* Client Header */}
                     <div className="p-7 md:p-8 border-b border-stone-200/60 dark:border-white/5 bg-stone-50/50 dark:bg-white/[0.02] relative overflow-hidden">
                         <div className="absolute -top-12 -right-12 w-40 h-40 bg-rose-400/10 dark:bg-rose-500/10 blur-[40px] rounded-full pointer-events-none transition-transform duration-700 group-hover/col:scale-110"></div>
                         
@@ -222,9 +204,9 @@ export default function DraftProposalUI({ clientA, clientB }: DraftProposalUIPro
                                     <User className="w-8 h-8" strokeWidth={1.5} />
                                 )}
                             </div>
-                            <div className="min-w-0">
-                                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 block mb-1">Dossier A</span>
-                                <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight leading-none mb-2.5 truncate">{clientA.firstName} <span className="font-light">{clientA.lastName}</span></h2>
+                            <div className="min-w-0 flex flex-col gap-0.5">
+                                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 block">Client A</span>
+                                <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 tracking-wide leading-none truncate">{clientA.firstName} <span className="font-light italic">{clientA.lastName}</span></h2>
                                 <div className="flex flex-wrap items-center gap-2 text-[12px] font-medium text-slate-600 dark:text-slate-400">
                                     <span className="flex items-center gap-1 bg-white dark:bg-black/20 px-2 py-0.5 rounded-md border border-stone-100 dark:border-white/5"><MapPin className="w-3 h-3 text-rose-400" /> {clientA.city || "Unknown"}</span>
                                     <span className="bg-white dark:bg-black/20 px-2 py-0.5 rounded-md border border-stone-100 dark:border-white/5">{ageA} yrs</span>
@@ -237,7 +219,7 @@ export default function DraftProposalUI({ clientA, clientB }: DraftProposalUIPro
                     {/* Editor Space */}
                     <div className="p-7 md:p-8 flex-1 flex flex-col relative z-10">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
-                            <h3 className="font-semibold text-[14px] text-slate-700 dark:text-slate-300">
+                            <h3 className="font-black text-slate-500 dark:text-slate-400">
                                 Message to {clientA.firstName}
                             </h3>
                             <button 
@@ -265,12 +247,10 @@ export default function DraftProposalUI({ clientA, clientB }: DraftProposalUIPro
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
-                                        className="absolute inset-0 bg-white/70 dark:bg-[#111218]/70 backdrop-blur-md rounded-[1.5rem] flex flex-col items-center justify-center z-20 border border-indigo-200/50 dark:border-indigo-500/20"
+                                        className="absolute inset-0 bg-white/70 dark:bg-[#111218]/70 backdrop-blur-md rounded-[1.5rem] flex flex-col gap-1 items-center justify-center z-20 border border-indigo-200/50 dark:border-indigo-500/20"
                                     >
-                                        <div className="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center mb-4 animate-bounce shadow-lg shadow-indigo-500/20">
-                                            <Wand2 className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-                                        </div>
-                                        <span className="text-[13px] font-bold text-indigo-800 dark:text-indigo-300 tracking-wide uppercase">Generative Engine Writing...</span>
+                                        <Wand2 className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                                        <span className="text-[13px] font-bold text-indigo-800 dark:text-indigo-300 tracking-wide">Generative Engine Writing...</span>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -281,7 +261,7 @@ export default function DraftProposalUI({ clientA, clientB }: DraftProposalUIPro
                 {/* ─── Client B Column ─── */}
                 <div className="bg-white/90 dark:bg-[#111218]/90 backdrop-blur-2xl rounded-[2.5rem] border border-stone-200/60 dark:border-white/5 shadow-2xl shadow-stone-200/20 dark:shadow-none flex flex-col overflow-hidden group/col">
                     
-                    {/* Dossier Header */}
+                    {/* Client Header */}
                     <div className="p-7 md:p-8 border-b border-stone-200/60 dark:border-white/5 bg-stone-50/50 dark:bg-white/[0.02] relative overflow-hidden">
                         <div className="absolute -top-12 -right-12 w-40 h-40 bg-rose-400/10 dark:bg-rose-500/10 blur-[40px] rounded-full pointer-events-none transition-transform duration-700 group-hover/col:scale-110"></div>
                         
@@ -293,9 +273,9 @@ export default function DraftProposalUI({ clientA, clientB }: DraftProposalUIPro
                                     <User className="w-8 h-8" strokeWidth={1.5} />
                                 )}
                             </div>
-                            <div className="min-w-0">
-                                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 block mb-1">Dossier B</span>
-                                <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight leading-none mb-2.5 truncate">{clientB.firstName} <span className="font-light">{clientB.lastName}</span></h2>
+                            <div className="min-w-0 flex flex-col gap-0.5">
+                                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 block">Client B</span>
+                                <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 tracking-wide leading-none truncate">{clientB.firstName} <span className="font-light italic">{clientB.lastName}</span></h2>
                                 <div className="flex flex-wrap items-center gap-2 text-[12px] font-medium text-slate-600 dark:text-slate-400">
                                     <span className="flex items-center gap-1 bg-white dark:bg-black/20 px-2 py-0.5 rounded-md border border-stone-100 dark:border-white/5"><MapPin className="w-3 h-3 text-rose-400" /> {clientB.city || "Unknown"}</span>
                                     <span className="bg-white dark:bg-black/20 px-2 py-0.5 rounded-md border border-stone-100 dark:border-white/5">{ageB} yrs</span>
@@ -308,7 +288,7 @@ export default function DraftProposalUI({ clientA, clientB }: DraftProposalUIPro
                     {/* Editor Space */}
                     <div className="p-7 md:p-8 flex-1 flex flex-col relative z-10">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
-                            <h3 className="font-semibold text-[14px] text-slate-700 dark:text-slate-300">
+                            <h3 className="font-black text-slate-500 dark:text-slate-400">
                                 Message to {clientB.firstName}
                             </h3>
                             <button 
@@ -336,12 +316,10 @@ export default function DraftProposalUI({ clientA, clientB }: DraftProposalUIPro
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
-                                        className="absolute inset-0 bg-white/70 dark:bg-[#111218]/70 backdrop-blur-md rounded-[1.5rem] flex flex-col items-center justify-center z-20 border border-indigo-200/50 dark:border-indigo-500/20"
+                                        className="absolute inset-0 bg-white/70 dark:bg-[#111218]/70 backdrop-blur-md rounded-[1.5rem] flex flex-col gap-1 items-center justify-center z-20 border border-indigo-200/50 dark:border-indigo-500/20"
                                     >
-                                        <div className="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center mb-4 animate-bounce shadow-lg shadow-indigo-500/20">
-                                            <Wand2 className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-                                        </div>
-                                        <span className="text-[13px] font-bold text-indigo-800 dark:text-indigo-300 tracking-wide uppercase">Generative Engine Writing...</span>
+                                        <Wand2 className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                                        <span className="text-[13px] font-bold text-indigo-800 dark:text-indigo-300 tracking-wide">Generative Engine Writing...</span>
                                     </motion.div>
                                 )}
                             </AnimatePresence>

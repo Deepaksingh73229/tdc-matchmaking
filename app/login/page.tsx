@@ -7,6 +7,7 @@ import { useState, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 
 
 function LoginContent() {
@@ -147,11 +148,7 @@ function LoginContent() {
 
 export default function LoginPage() {
     return (
-        <Suspense fallback={
-            <div className="min-h-[85vh] flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-rose-500" />
-            </div>
-        }>
+        <Suspense fallback={<LoadingScreen />}>
             <LoginContent />
         </Suspense>
     );
