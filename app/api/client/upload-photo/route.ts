@@ -27,7 +27,6 @@ import {
     requireRole,
 } from "@/app/api/_lib/api-helpers";
 
-// ─── Cloudinary config (module-level singleton) ───────────────────────────────
 cloudinary.config({
     cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -37,7 +36,6 @@ cloudinary.config({
 const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
-// ─── Helper: stream buffer to Cloudinary ─────────────────────────────────────
 function uploadToCloudinary(
     buffer: Buffer,
     publicId: string
@@ -60,7 +58,6 @@ function uploadToCloudinary(
     });
 }
 
-// ─── Route handler ────────────────────────────────────────────────────────────
 
 export async function POST(req: Request) {
     try {
@@ -70,7 +67,6 @@ export async function POST(req: Request) {
         const formData = await req.formData();
         const file = formData.get("file") as File | null;
 
-        // ── Presence & type check ────────────────────────────────────────────────
         if (!file) {
             return badRequest("No file provided. Include a 'file' field in the form data.");
         }
@@ -81,17 +77,14 @@ export async function POST(req: Request) {
             return badRequest("File exceeds the 5 MB size limit.");
         }
 
-        // ── Convert to Buffer ────────────────────────────────────────────────────
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
 
-        // ── Upload to Cloudinary ─────────────────────────────────────────────────
         // Deterministic public_id means re-uploads replace the old image in-place
         const publicId = `profile_${session.user.id}`;
         const uploadResult = await uploadToCloudinary(buffer, publicId);
         const photoUrl = uploadResult.secure_url;
 
-        // ── Persist URL to DB ────────────────────────────────────────────────────
         await ClientService.updateById(session.user.id, {
             $set: { profilePhoto: photoUrl },
         });

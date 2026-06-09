@@ -28,7 +28,6 @@ export async function findHybridMatches(
     clientId: string,
     limit = 5
 ): Promise<MatchSuggestion[]> {
-    // ── 1. Fetch target client ────────────────────────────────────────────────
     const targetClient = await ClientService.findById(clientId);
 
     if (!targetClient) {
@@ -42,7 +41,6 @@ export async function findHybridMatches(
 
     const prefs = targetClient.preferences ?? {};
 
-    // ── 2. Build the Atlas pre-filter from client preferences ─────────────────
     // Keeping this dynamic means adding a new preference field only
     // requires updating the Preferences sub-schema, not this function.
     const preFilter: Record<string, any> = {
@@ -50,12 +48,10 @@ export async function findHybridMatches(
         statusTag: "Searching",                  // only verified, active profiles
     };
 
-    // Gender
     if (prefs.preferredGender && prefs.preferredGender !== "Any") {
         preFilter.gender = prefs.preferredGender;
     }
 
-    // Age range — computed as a DOB range
     const now = new Date();
     if (prefs.minAge || prefs.maxAge) {
         // DOB range: people born between (now - maxAge) and (now - minAge).
@@ -87,12 +83,10 @@ export async function findHybridMatches(
         preFilter.religion = { $in: prefs.preferredReligions };
     }
 
-    // Income floor
     if (prefs.minIncome_lpa) {
         preFilter.income_lpa = { $gte: prefs.minIncome_lpa };
     }
 
-    // Height range
     if (prefs.minHeight_cm || prefs.maxHeight_cm) {
         const heightFilter: Record<string, number> = {};
         if (prefs.minHeight_cm) heightFilter.$gte = prefs.minHeight_cm;
@@ -100,15 +94,12 @@ export async function findHybridMatches(
         preFilter.height_cm = heightFilter;
     }
 
-    // Marital statuses
     if (prefs.preferredMaritalStatuses?.length) {
         preFilter.maritalStatus = { $in: prefs.preferredMaritalStatuses };
     }
 
-    // Debug: emit preFilter for troubleshooting in server logs
     // console.debug(`[matching_service] preFilter for ${clientId}:`, JSON.stringify(preFilter));
 
-    // ── 3. Atlas Vector Search aggregation ───────────────────────────────────
     const CANDIDATES_MULTIPLIER = 4; // fetch more then rank-cut
     const vectorCandidates = await ClientService.aggregate([
         {
@@ -138,7 +129,6 @@ export async function findHybridMatches(
         return [];
     }
 
-    // ── 4. Rule-based scoring pass ────────────────────────────────────────────
     const scored: MatchSuggestion[] = vectorCandidates.map((candidate) => {
         const { score, reasons, penalties } = calculateWeightedScore(
             targetClient as any,
@@ -166,7 +156,6 @@ export async function findHybridMatches(
         };
     });
 
-    // ── 5. Filter weak matches, sort descending, return top N ────────────────
     return scored
         .filter((m) => m.score >= 30) // only surface reasonably compatible matches
         .sort((a, b) => b.score - a.score)

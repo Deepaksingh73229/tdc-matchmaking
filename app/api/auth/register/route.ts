@@ -25,7 +25,6 @@ import {
     isNonEmptyString,
 } from "@/app/api/_lib/api-helpers";
 
-// ─── Required fields for initial registration ─────────────────────────────────
 const REQUIRED = [
     "firstName",
     "lastName",
@@ -45,7 +44,6 @@ export async function POST(req: Request) {
     try {
         const body = await req.json();
 
-        // ── Field presence check ─────────────────────────────────────────────────
         const missing = REQUIRED.filter(
             (f) => body[f] === undefined || body[f] === null || body[f] === ""
         );
@@ -54,7 +52,6 @@ export async function POST(req: Request) {
             return badRequest(`Missing required fields: ${missing.join(", ")}.`);
         }
 
-        // ── Format validation ────────────────────────────────────────────────────
         if (!isValidEmail(body.email)) {
             return badRequest("Please provide a valid email address.");
         }
@@ -67,10 +64,8 @@ export async function POST(req: Request) {
         //     return badRequest("Gender must be 'Male', 'Female', or 'Other'.");
         // }
 
-        // ── Hash password ────────────────────────────────────────────────────────
         const passwordHash = await bcrypt.hash(body.password, 12);
 
-        // ── Create client ────────────────────────────────────────────────────────
         const client = await ClientService.create({
             firstName: body.firstName.trim(),
             lastName: body.lastName.trim(),

@@ -1,6 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-// ─── Sub-schemas ─────────────────────────────────────────────────────────────
 
 /**
  * Structured partner preferences for rule-based pre-filtering.
@@ -77,53 +76,43 @@ const PreferencesSchema = new Schema(
     { _id: false } // embedded sub-doc — no separate _id needed
 );
 
-// ─── Main Client interface ────────────────────────────────────────────────────
 
 export interface IClient extends Document {
-    // ── Identity
     firstName: string;
     lastName: string;
     gender: "Male" | "Female" | "Other";
     dob: Date;
     profilePhoto: string;
 
-    // ── Contact (confidential — never leaked before mutual acceptance)
     email: string;
     phone: string;
     passwordHash: string;
 
-    // ── Location
     country: string;
     city: string;
 
-    // ── Physical
     height_cm: number;
 
-    // ── Education & Career
     college: string;
     degree: string;
     company: string;
     designation: string;
     income_lpa: number;
 
-    // ── Background
     maritalStatus: "Never Married" | "Divorced" | "Widowed" | "Awaiting Divorce";
     languages: string[];
     siblings: number;
     caste: string;
     religion: string;
 
-    // ── Lifestyle
     wantKids: "Yes" | "No" | "Maybe";
     openToRelocate: "Yes" | "No" | "Maybe";
     openToPets: "Yes" | "No" | "Maybe";
 
-    // ── Narrative fields (fed into the embedding model)
     aboutMe: string;
     hobbies: string;
     partnerExpectations: string;
 
-    // ── Partner preferences (used for pre-filter query)
     preferences: {
         preferredGender: string;
         minAge: number;
@@ -139,22 +128,18 @@ export interface IClient extends Document {
         openToRelocate: string;
     };
 
-    // ── AI / Search
     profileEmbedding: number[];   // dense vector from Gemini gemini-embedding-2 (768 dims)
     embeddedAt: Date | null;      // timestamp of last embedding — used to detect stale vectors
 
-    // ── Workflow
     statusTag: "Pending" | "Searching" | "On Hold" | "Matched" | "Proposed";
 
     createdAt: Date;
     updatedAt: Date;
 }
 
-// ─── Schema definition ────────────────────────────────────────────────────────
 
 const ClientSchema = new Schema<IClient>(
     {
-        // ── Identity
         firstName: { 
             type: String, 
             required: true, 
@@ -183,7 +168,6 @@ const ClientSchema = new Schema<IClient>(
             default: "" 
         },
 
-        // ── Contact
         email: {
             type: String,
             required: true,
@@ -202,7 +186,6 @@ const ClientSchema = new Schema<IClient>(
             required: true 
         },
 
-        // ── Location
         country: { 
             type: String, 
             // required: true 
@@ -213,13 +196,11 @@ const ClientSchema = new Schema<IClient>(
             // required: true 
         },
 
-        // ── Physical
         height_cm: { 
             type: Number, 
             // required: true 
         },
 
-        // ── Education & Career
         college: { 
             type: String, 
             default: "" 
@@ -246,7 +227,6 @@ const ClientSchema = new Schema<IClient>(
             default: 0 
         },
 
-        // ── Background
         maritalStatus: {
             type: String,
             enum: ["Never Married", "Divorced", "Widowed", "Awaiting Divorce"],
@@ -273,7 +253,6 @@ const ClientSchema = new Schema<IClient>(
             // required: true 
         },
 
-        // ── Lifestyle
         wantKids: { 
             type: String, 
             enum: ["Yes", "No", "Maybe"], 
@@ -292,7 +271,6 @@ const ClientSchema = new Schema<IClient>(
             default: "Maybe" 
         },
 
-        // ── Narrative (embedding source)
         aboutMe: { 
             type: String, 
             default: "" 
@@ -308,13 +286,11 @@ const ClientSchema = new Schema<IClient>(
             default: "" 
         },
 
-        // ── Partner preferences
         preferences: { 
             type: PreferencesSchema, 
             default: () => ({}) 
         },
 
-        // ── AI / Search
         profileEmbedding: {
             type: [Number],
             default: [],
@@ -327,7 +303,6 @@ const ClientSchema = new Schema<IClient>(
             default: null 
         },
 
-        // ── Workflow
         statusTag: {
             type: String,
             enum: ["Pending", "Searching", "On Hold", "Matched", "Proposed"],
@@ -337,11 +312,12 @@ const ClientSchema = new Schema<IClient>(
     { timestamps: true }
 );
 
-// ─── Secondary indexes (non-vector) ──────────────────────────────────────────
 // Used by the pre-filter aggregation stage to narrow candidates fast.
 ClientSchema.index({ statusTag: 1, gender: 1, religion: 1, city: 1 });
 
-// ─── Model registration (hot-reload safe) ────────────────────────────────────
+// Text index to significantly optimize admin dashboard text searches
+ClientSchema.index({ firstName: "text", lastName: "text", email: "text", city: "text" });
+
 if (mongoose.models.Client) {
     delete mongoose.models.Client;
 }

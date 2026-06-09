@@ -65,7 +65,6 @@ const NotificationSchema = new Schema<INotification>(
     { timestamps: true }
 );
 
-// ─── Indexes ──────────────────────────────────────────────────────────────────
 
 /** Primary query: unread notifications for a client, newest first */
 NotificationSchema.index({ clientId: 1, isRead: 1, createdAt: -1 });
@@ -81,7 +80,6 @@ NotificationSchema.index(
     { expireAfterSeconds: 90 * 24 * 60 * 60 } // 90 days
 );
 
-// ─── Model registration (hot-reload safe) ────────────────────────────────────
 if (mongoose.models.Notification) {
     delete mongoose.models.Notification;
 }

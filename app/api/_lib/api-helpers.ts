@@ -10,7 +10,6 @@
 import { NextResponse } from "next/server";
 import type { Session } from "next-auth";
 
-// ─── Response helpers ─────────────────────────────────────────────────────────
 
 export function ok<T extends object>(data: T, status = 200) {
     return NextResponse.json({ success: true, ...data }, { status });
@@ -44,7 +43,6 @@ export function serverError(message = "An unexpected error occurred.") {
     return NextResponse.json({ success: false, message }, { status: 500 });
 }
 
-// ─── Auth guards ──────────────────────────────────────────────────────────────
 
 export function requireRole(
     session: Session | null,
@@ -53,7 +51,6 @@ export function requireRole(
     return !!(session && session.user && (session.user as any).role === role);
 }
 
-// ─── Field sanitisation ───────────────────────────────────────────────────────
 
 /**
  * Fields that must NEVER be updated via the client self-update route.
@@ -82,7 +79,6 @@ export function sanitiseClientUpdate(raw: Record<string, unknown>): Record<strin
     );
 }
 
-// ─── Simple validators ────────────────────────────────────────────────────────
 
 export function isNonEmptyString(v: unknown): v is string {
     return typeof v === "string" && v.trim().length > 0;
@@ -96,7 +92,6 @@ export function isValidEmail(v: unknown): v is string {
     return typeof v === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 }
 
-// ─── Mongo duplicate-key detector ────────────────────────────────────────────
 
 export function isDuplicateKeyError(err: unknown): boolean {
     return (
@@ -107,7 +102,6 @@ export function isDuplicateKeyError(err: unknown): boolean {
     );
 }
 
-// ─── Safe public client projection ───────────────────────────────────────────
 
 /**
  * Fields NEVER sent to the client (or matchmaker) in any list/search response.

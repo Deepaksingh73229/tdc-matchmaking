@@ -35,8 +35,8 @@ export default async function MatchesPage() {
             <div className="fixed bottom-0 right-0 w-[800px] h-[800px] bg-stone-200/50 dark:bg-white/[0.02] blur-[120px] rounded-full pointer-events-none -z-10 translate-x-1/3 translate-y-1/3"></div>
 
             {/* ── Page Header ── */}
-            <div className="mb-8 md:mb-10 relative z-10 px-2">
-                <h1 className="text-3xl md:text-4xl font-bold text-slate-800 dark:text-slate-100 tracking-tight mb-3">
+            <div className="mb-6 md:mb-10 relative z-10 px-4 sm:px-6 lg:px-8">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-slate-800 dark:text-slate-100 tracking-tight mb-2 md:mb-3">
                     Connection Tracking
                 </h1>
                 <p className="text-[15px] text-slate-500 dark:text-slate-400 max-w-2xl leading-relaxed">

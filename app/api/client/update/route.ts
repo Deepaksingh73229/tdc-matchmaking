@@ -28,7 +28,6 @@ import {
     CLIENT_ADMIN_PROJECTION,
 } from "@/app/api/_lib/api-helpers";
 
-// ─── Fields whose update stales the embedding ─────────────────────────────────
 const EMBEDDING_SOURCE_FIELDS = new Set([
     "firstName",
     "lastName",
@@ -54,7 +53,6 @@ const EMBEDDING_SOURCE_FIELDS = new Set([
     "preferences",
 ]);
 
-// ─── GET — fetch own profile ──────────────────────────────────────────────────
 
 export async function GET(req: Request) {
     try {
@@ -72,7 +70,6 @@ export async function GET(req: Request) {
     }
 }
 
-// ─── PUT — update own profile ─────────────────────────────────────────────────
 
 export async function PUT(req: Request) {
     try {

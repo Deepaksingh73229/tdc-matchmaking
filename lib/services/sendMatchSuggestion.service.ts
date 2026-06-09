@@ -22,7 +22,6 @@ export async function sendMatchSuggestion(
     message: string
 ) {
     try {
-        // ── Auth guard ──────────────────────────────────────────────────────────
         const session = await getServerSession(authOptions);
         if (!session || session.user.role !== "Matchmaker") {
             return {
@@ -31,12 +30,10 @@ export async function sendMatchSuggestion(
             };
         }
 
-        // ── Input validation ────────────────────────────────────────────────────
         if (!clientId || !matchName.trim() || !message.trim()) {
             return { success: false, error: "clientId, matchName, and message are all required." };
         }
 
-        // ── Create notification ─────────────────────────────────────────────────
         await NotificationService.create({
             clientId,
             title: `A new profile has caught our eye for you 👀`,
@@ -45,7 +42,6 @@ export async function sendMatchSuggestion(
             // No relatedId — there is no Match document yet for a suggestion
         });
 
-        // ── Revalidate client notification feed ─────────────────────────────────
         revalidatePath("/client-hub/notifications");
 
         return { success: true };

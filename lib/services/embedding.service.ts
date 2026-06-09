@@ -1,6 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
 
-// ─── SDK instance (module-level singleton to reuse the HTTP connection pool) ──
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY ?? "" });
 
 /**

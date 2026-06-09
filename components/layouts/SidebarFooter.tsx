@@ -15,18 +15,32 @@ interface SidebarFooterProps {
 export function SidebarFooter({ userName, role, isCollapsed }: SidebarFooterProps) {
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = React.useState(false);
+    const [isOpen, setIsOpen] = React.useState(false);
+    const menuRef = React.useRef<HTMLDivElement>(null);
     const { data: session } = useSession();
 
     React.useEffect(() => {
         setMounted(true);
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     return (
-        <div className="mt-auto p-4 relative z-20 shrink-0 w-full">
-            <div className="relative group w-full">
+        <div className="mt-auto p-4 relative z-20 shrink-0 w-full" ref={menuRef}>
+            <div 
+                className="relative group w-full"
+                onMouseEnter={() => setIsOpen(true)}
+                onMouseLeave={() => setIsOpen(false)}
+            >
 
                 {/* --- Profile Card (Trigger) --- */}
                 <div
+                    onClick={() => setIsOpen(!isOpen)}
                     className={`flex items-center gap-3.5 rounded-2xl p-2 cursor-pointer transition-all duration-300 ease-out hover:bg-stone-100/60 dark:hover:bg-white/5 ${
                         isCollapsed ? "justify-center" : ""
                     }`}
@@ -61,8 +75,10 @@ export function SidebarFooter({ userName, role, isCollapsed }: SidebarFooterProp
                 {/* --- Hover Popup Menu --- */}
                 {/* We use an invisible bridge area so the mouse doesn't lose hover when moving up */}
                 <div
-                    className={`absolute bottom-[110%] pb-2 w-[240px] opacity-0 invisible translate-y-3 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] z-50 ${
+                    className={`absolute bottom-[110%] pb-2 w-[240px] transition-all duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] z-50 ${
                         isCollapsed ? "left-4" : "left-0"
+                    } ${
+                        isOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible translate-y-3"
                     }`}
                 >
                     <div className="relative rounded-2xl p-1.5 bg-white/95 dark:bg-[#1A1B23]/95 backdrop-blur-xl border border-stone-200/60 dark:border-white/10 shadow-2xl shadow-stone-200/20 dark:shadow-black/50 flex flex-col gap-0.5 overflow-hidden">

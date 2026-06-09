@@ -25,7 +25,6 @@ import { generateMatchEmail } from "./generateMatchEmail.service";
  */
 export async function proposeMatch(clientA_Id: string, clientB_Id: string, customMessageA?: string, customMessageB?: string) {
     try {
-        // ── Auth ────────────────────────────────────────────────────────────────
         const session = await getServerSession(authOptions);
 
         if (!session || session.user.role !== "Matchmaker") {
@@ -35,10 +34,8 @@ export async function proposeMatch(clientA_Id: string, clientB_Id: string, custo
             };
         }
 
-        // ── Canonical ID ordering (preserves unique index) ──────────────────────
         const [id1, id2] = [clientA_Id, clientB_Id].sort();
 
-        // ── Idempotency check ───────────────────────────────────────────────────
         const existingMatch = await MatchService.findOne({ clientA: id1, clientB: id2 });
         if (existingMatch) {
             return {
@@ -47,7 +44,6 @@ export async function proposeMatch(clientA_Id: string, clientB_Id: string, custo
             };
         }
 
-        // ── Fetch clients ───────────────────────────────────────────────────────
         const [client1, client2] = await Promise.all([
             ClientService.findById(id1),
             ClientService.findById(id2),
@@ -70,7 +66,6 @@ export async function proposeMatch(clientA_Id: string, clientB_Id: string, custo
             };
         }
 
-        // ── Scoring ─────────────────────────────────────────────────────────────
         // Run in both directions so each party's perspective is captured
         const score1 = calculateWeightedScore(client1 as any, client2 as any); // for client1 about client2
         const score2 = calculateWeightedScore(client2 as any, client1 as any); // for client2 about client1
@@ -102,7 +97,6 @@ export async function proposeMatch(clientA_Id: string, clientB_Id: string, custo
         // Deduplicated shared reasons stored on the Match for admin audit
         const allReasons = Array.from(new Set([...score1.reasons, ...score2.reasons]));
 
-        // ── Generate AI intro messages ──────────────────────────────────────────
         const [aiMsg1, aiMsg2] = await Promise.all([
             customMessageA ? Promise.resolve({ text: customMessageA }) : generateMatchEmail(
                 client1.firstName,
@@ -119,7 +113,6 @@ export async function proposeMatch(clientA_Id: string, clientB_Id: string, custo
             ),
         ]);
 
-        // ── Create Match document ───────────────────────────────────────────────
         const match = await MatchService.create({
             clientA: id1,
             clientB: id2,
@@ -131,13 +124,11 @@ export async function proposeMatch(clientA_Id: string, clientB_Id: string, custo
             matchReasons: allReasons,
         });
 
-        // ── Update clients to "Proposed" status ────────────────────────────────
         await ClientService.updateMany(
             { _id: { $in: [id1, id2] } },
             { $set: { statusTag: "Proposed" } }
         );
 
-        // ── Notify both clients ─────────────────────────────────────────────────
         await NotificationService.insertMany([
             {
                 clientId: id1,
@@ -159,7 +150,6 @@ export async function proposeMatch(clientA_Id: string, clientB_Id: string, custo
             },
         ]);
 
-        // ── Revalidate relevant cache paths ─────────────────────────────────────
         revalidatePath("/dashboard");
         revalidatePath(`/dashboard/client/${clientA_Id}`);
         revalidatePath(`/dashboard/client/${clientB_Id}`);

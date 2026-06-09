@@ -113,7 +113,6 @@ const MatchSchema = new Schema<IMatch>(
     { timestamps: true }
 );
 
-// ─── Indexes ──────────────────────────────────────────────────────────────────
 
 /**
  * Unique constraint on the sorted pair — prevents duplicate proposals.
@@ -129,7 +128,6 @@ MatchSchema.index({ overallStatus: 1, createdAt: -1 });
 MatchSchema.index({ clientA: 1, overallStatus: 1 });
 MatchSchema.index({ clientB: 1, overallStatus: 1 });
 
-// ─── Model registration (hot-reload safe) ────────────────────────────────────
 if (mongoose.models.Match) {
     delete mongoose.models.Match;
 }

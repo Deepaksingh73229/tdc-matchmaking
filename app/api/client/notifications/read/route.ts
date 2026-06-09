@@ -21,7 +21,6 @@ import {
     isValidObjectId,
 } from "@/app/api/_lib/api-helpers";
 
-// ─── PUT — mark a single notification as read ────────────────────────────────
 
 export async function PUT(req: Request) {
     try {
@@ -53,7 +52,6 @@ export async function PUT(req: Request) {
     }
 }
 
-// ─── POST — mark ALL unread notifications as read ────────────────────────────
 
 export async function POST(req: Request) {
     try {

@@ -45,7 +45,6 @@ const MatchmakerSchema = new Schema<IMatchmaker>(
     { timestamps: true }
 );
 
-// ─── Model registration (hot-reload safe) ────────────────────────────────────
 if (mongoose.models.Matchmaker) {
     delete mongoose.models.Matchmaker;
 }

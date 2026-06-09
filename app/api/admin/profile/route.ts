@@ -19,7 +19,6 @@ import {
     isNonEmptyString,
 } from "@/app/api/_lib/api-helpers";
 
-// ─── GET ──────────────────────────────────────────────────────────────────────
 
 export async function GET(_req: Request) {
     try {
@@ -37,7 +36,6 @@ export async function GET(_req: Request) {
     }
 }
 
-// ─── PUT ──────────────────────────────────────────────────────────────────────
 
 export async function PUT(req: Request) {
     try {
@@ -49,18 +47,15 @@ export async function PUT(req: Request) {
 
         const updateFields: Record<string, string> = {};
 
-        // ── Name update ──────────────────────────────────────────────────────────
         if (name !== undefined) {
             if (!isNonEmptyString(name)) return badRequest("'name' cannot be empty.");
             updateFields.name = name.trim();
         }
 
-        // ── Profile Photo update ──────────────────────────────────────────────────
         if (profilePhoto !== undefined) {
             updateFields.profilePhoto = profilePhoto.trim();
         }
 
-        // ── Password change ──────────────────────────────────────────────────────
         if (newPassword !== undefined) {
             if (!isNonEmptyString(currentPassword)) {
                 return badRequest("Provide 'currentPassword' to set a new password.");

@@ -7,7 +7,6 @@ import { authOptions } from "@/lib/authOptions";
 import { revalidatePath } from "next/cache";
 import { generateProfileEmbedding, buildProfileText } from "@/lib/services/embedding.service";
 
-// ─── Required-field definition ────────────────────────────────────────────────
 // Each entry is typed so `key` is always a real field name on the Client model.
 const REQUIRED_FIELDS: Array<{ key: any; label: string }> = [
     { key: "firstName", label: "First Name" },
@@ -27,7 +26,6 @@ const REQUIRED_FIELDS: Array<{ key: any; label: string }> = [
     { key: "aboutMe", label: "About Me" },
 ];
 
-// ─── Action ───────────────────────────────────────────────────────────────────
 
 /**
  * Verifies a client's profile and immediately generates + stores their
@@ -37,24 +35,20 @@ const REQUIRED_FIELDS: Array<{ key: any; label: string }> = [
  */
 export async function verifyClientProfile(clientId: string) {
     try {
-        // ── Auth guard ──────────────────────────────────────────────────────────
         const session = await getServerSession(authOptions);
         if (!session || session.user.role !== "Matchmaker") {
             return { success: false, error: "Unauthorized. Only Matchmakers can verify profiles." };
         }
 
-        // ── Fetch client ────────────────────────────────────────────────────────
         const client = await ClientService.findById(clientId);
         if (!client) {
             return { success: false, error: "Client not found." };
         }
 
-        // ── Idempotency guard ───────────────────────────────────────────────────
         if (client.statusTag === "Searching") {
             return { success: false, error: "This profile is already verified and active." };
         }
 
-        // ── Completeness check ──────────────────────────────────────────────────
         const missingFields = REQUIRED_FIELDS.filter(({ key }) => {
             const val = client[key as keyof typeof client];
             if (val === null || val === undefined) return true;
@@ -70,7 +64,6 @@ export async function verifyClientProfile(clientId: string) {
             };
         }
 
-        // ── Generate embedding ──────────────────────────────────────────────────
         let embedding: number[];
         try {
             const profileText = buildProfileText({
@@ -102,14 +95,12 @@ export async function verifyClientProfile(clientId: string) {
             };
         }
 
-        // ── Persist: status + embedding ──────────────────────
         await ClientService.updateById(clientId, {
             statusTag: "Searching",
             profileEmbedding: embedding,
             embeddedAt: new Date(),
         });
 
-        // ── Notify client ───────────────────────────────────────────────────────
         await NotificationService.create({
             clientId,
             title: "Profile Verified! 🎉",
@@ -119,7 +110,6 @@ export async function verifyClientProfile(clientId: string) {
             type: "PROFILE_VERIFIED",
         });
 
-        // ── Revalidate UI ───────────────────────────────────────────────────────
         revalidatePath("/dashboard");
         revalidatePath(`/dashboard/client/${clientId}`);
 

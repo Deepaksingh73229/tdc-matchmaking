@@ -19,7 +19,6 @@ import {
     isValidObjectId,
 } from "@/app/api/_lib/api-helpers";
 
-// ─── GET /api/client/notifications ───────────────────────────────────────────
 // Returns paginated notifications for the logged-in client.
 // Query params: ?page=1&limit=20&unreadOnly=true
 

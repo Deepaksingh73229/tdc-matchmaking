@@ -126,7 +126,7 @@ export default function DashboardShell({ children, role, userName }: DashboardSh
             {/* ─── Sidebar ─── */}
             <aside
                 className={
-                    `fixed top-0 left-0 z-50 h-screen bg-white/90 dark:bg-[#111218]/90 backdrop-blur-2xl border-r border-stone-200/60 dark:border-white/5 flex flex-col transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] shadow-[4px_0_24px_-12px_rgba(0,0,0,0.05)] dark:shadow-none
+                    `fixed top-0 left-0 z-50 h-[100dvh] bg-white/90 dark:bg-[#111218]/90 backdrop-blur-2xl border-r border-stone-200/60 dark:border-white/5 flex flex-col transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] shadow-[4px_0_24px_-12px_rgba(0,0,0,0.05)] dark:shadow-none
                      ${isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
                      ${sidebarWidth}
                     `}
@@ -146,7 +146,7 @@ export default function DashboardShell({ children, role, userName }: DashboardSh
                 {/* Mobile Close Button */}
                 <button
                     onClick={() => setIsMobileOpen(false)}
-                    className="absolute right-4 top-6 md:hidden text-slate-400 hover:text-rose-500 bg-stone-100 dark:bg-white/5 p-2 rounded-full transition-all"
+                    className="absolute right-4 top-6 z-50 md:hidden text-slate-400 hover:text-rose-500 bg-stone-100 dark:bg-white/5 p-2 rounded-full transition-all"
                 >
                     <X className="w-5 h-5" />
                 </button>

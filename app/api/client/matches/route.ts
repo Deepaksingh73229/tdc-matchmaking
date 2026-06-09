@@ -26,7 +26,6 @@ import {
 } from "@/app/api/_lib/api-helpers";
 import { respondToMatch } from "@/lib/services/respondToMatch.service";
 
-// ─── Shared safe projection for the partner's profile ─────────────────────────
 // Phone + email are added back conditionally after fetch if status is Connected.
 const PARTNER_SAFE = {
     passwordHash: 0,
@@ -35,7 +34,6 @@ const PARTNER_SAFE = {
     email: 0,
 };
 
-// ─── GET — list matches OR fetch single match ─────────────────────────────────
 
 export async function GET(req: Request) {
     try {
@@ -47,7 +45,6 @@ export async function GET(req: Request) {
 
         const clientId = session.user.id;
 
-        // ── Single match detail ──────────────────────────────────────────────────
         if (matchId) {
             if (!isValidObjectId(matchId)) return badRequest("Invalid match id.");
 
@@ -87,7 +84,6 @@ export async function GET(req: Request) {
             });
         }
 
-        // ── List all matches ─────────────────────────────────────────────────────
         const { searchParams: sp } = new URL(req.url);
         const status = sp.get("status"); // e.g. "Proposed" | "Connected" | "Rejected"
         const page = Math.max(1, Number(sp.get("page") ?? 1));
@@ -142,7 +138,6 @@ export async function GET(req: Request) {
     }
 }
 
-// ─── PUT — respond to a match proposal (Accepted | Declined) ──────────────────
 
 export async function PUT(req: Request) {
     try {

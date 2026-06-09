@@ -22,7 +22,6 @@ export async function respondToMatch(
     response: "Accepted" | "Declined"
 ) {
     try {
-        // ── Auth ─────────────────────────────────────────────────────────────────
         const session = await getServerSession(authOptions);
         if (!session || session.user.role !== "Client") {
             return { 
@@ -31,7 +30,6 @@ export async function respondToMatch(
             };
         }
 
-        // ── Fetch match ───────────────────────────────────────────────────────────
         const match = await MatchService.findById(matchId);
         if (!match) {
             return { 
@@ -40,7 +38,6 @@ export async function respondToMatch(
             };
         }
 
-        // ── Guard: proposal must still be open ───────────────────────────────────
         if (match.overallStatus !== "Proposed") {
             return {
                 success: false,
@@ -59,7 +56,6 @@ export async function respondToMatch(
             };
         }
 
-        // ── Guard: don't allow re-submitting a response ───────────────────────────
         const currentStatus = isClientA ? match.statusA : match.statusB;
         if (currentStatus !== "Pending") {
             return {
@@ -68,7 +64,6 @@ export async function respondToMatch(
             };
         }
 
-        // ── Prepare updates ───────────────────────────────────────────────────────
         const respondedAt = new Date();
         const matchUpdate: any = {};
 
@@ -81,7 +76,6 @@ export async function respondToMatch(
             matchUpdate.respondedAtB = respondedAt;
         }
 
-        // ── Determine overall status and side-effects ─────────────────────────────
         let finalOverallStatus = "Proposed";
 
         if (response === "Declined") {
@@ -149,7 +143,6 @@ export async function respondToMatch(
         // Persist match update
         await MatchService.updateById(matchId, matchUpdate);
 
-        // ── Revalidate ────────────────────────────────────────────────────────────
         revalidatePath(`/client-hub/match/${matchId}`);
         revalidatePath("/client-hub/notifications");
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { User, Search, Clock, CheckCircle2, HeartHandshake, Heart, Sparkles, XCircle, PauseCircle, Filter, Zap } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { formatDistanceToNow } from "date-fns";
 
 interface MatchTrackingUIProps {
@@ -69,12 +70,12 @@ export default function MatchTrackingUI({ initialMatches }: MatchTrackingUIProps
         <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8 mt-6">
 
             {/* Tabs / Segmented Control */}
-            <div className="flex items-center gap-1.5 bg-white/60 dark:bg-black/20 backdrop-blur-md p-1.5 rounded-[1.25rem] border border-stone-200/60 dark:border-white/5 w-fit shadow-sm">
+            <div className="flex items-center justify-between sm:justify-start gap-1 sm:gap-1.5 bg-white/60 dark:bg-black/20 backdrop-blur-md p-1 sm:p-1.5 rounded-[1.25rem] border border-stone-200/60 dark:border-white/5 w-full sm:w-fit shadow-sm">
                 {(["Proposed", "Connected", "Archived"] as const).map(tab => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`px-6 py-2.5 rounded-xl text-[14px] font-bold transition-all duration-300 relative ${activeTab === tab
+                        className={`flex-1 sm:flex-none px-2 py-2.5 sm:px-6 rounded-xl text-[11px] sm:text-[14px] font-bold transition-all duration-300 relative ${activeTab === tab
                             ? 'text-white'
                             : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/5'
                             }`}
@@ -89,12 +90,14 @@ export default function MatchTrackingUI({ initialMatches }: MatchTrackingUIProps
                             )
                         }
 
-                        <span className="relative z-10 flex items-center gap-2.5">
-                            {tab === "Proposed" && <Clock className="w-4 h-4" strokeWidth={2.5} />}
-                            {tab === "Connected" && <CheckCircle2 className="w-4 h-4" strokeWidth={2.5} />}
-                            {tab === "Archived" && <XCircle className="w-4 h-4" strokeWidth={2.5} />}
-                            {tab}
-                            <span className={`ml-1.5 px-2 py-0.5 rounded-lg text-[11px] transition-colors duration-300 ${activeTab === tab
+                        <span className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2.5 w-full">
+                            <div className="flex items-center gap-1.5">
+                                {tab === "Proposed" && <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2.5} />}
+                                {tab === "Connected" && <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2.5} />}
+                                {tab === "Archived" && <XCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2.5} />}
+                                <span className="whitespace-nowrap hidden min-[360px]:block">{tab}</span>
+                            </div>
+                            <span className={`px-1.5 sm:px-2 py-0.5 rounded-md sm:rounded-lg text-[9px] sm:text-[11px] font-black transition-colors duration-300 ${activeTab === tab
                                 ? 'bg-white/20 text-white'
                                 : 'bg-stone-200 dark:bg-white/10 text-slate-600 dark:text-slate-300'
                                 }`}>
@@ -170,14 +173,14 @@ function MatchCard({ match }: { match: any }) {
             </div>
 
             {/* Meta Header */}
-            <div className="flex items-center justify-between mb-8 relative z-10">
-                <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 relative z-10">
+                <div className="flex flex-wrap items-center gap-2">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest border border-emerald-200/60 dark:border-emerald-500/20">
                         <Zap className="w-3 h-3 fill-emerald-500" />
                         {match.compatibilityScore}% Match
                     </span>
 
-                    <span className="text-[12px] font-medium text-slate-400 dark:text-slate-500">
+                    <span className="text-[11px] sm:text-[12px] font-medium text-slate-400 dark:text-slate-500">
                         • Initiated {formatDistanceToNow(new Date(match.createdAt))} ago
                     </span>
                 </div>
@@ -193,7 +196,14 @@ function MatchCard({ match }: { match: any }) {
                         <div className="w-16 h-16 md:w-20 md:h-20 mb-3 rounded-full bg-gradient-to-br from-rose-100 to-rose-50 dark:from-rose-900/40 dark:to-rose-800/20 overflow-hidden border-[3px] border-white dark:border-[#1A1B23] shadow-md mx-auto group-hover/client:border-rose-300 dark:group-hover/client:border-rose-900 transition-all duration-300 group-hover/client:scale-105">
                             {
                                 match.clientA.profilePhoto ? (
-                                    <img src={match.clientA.profilePhoto} alt="A" className="w-full h-full object-cover" />
+                                    <Image 
+                                        src={match.clientA.profilePhoto} 
+                                        alt="A" 
+                                        width={80} 
+                                        height={80} 
+                                        className="w-full h-full object-cover" 
+                                        loading="lazy"
+                                    />
                                 ) : (
                                     <User className="w-8 h-8 m-auto text-rose-500 mt-4 md:mt-5" strokeWidth={1.5} />
                                 )
@@ -219,7 +229,7 @@ function MatchCard({ match }: { match: any }) {
                 {/* Center Handshake */}
                 <div className="px-2 flex flex-col items-center">
                     <HeartHandshake
-                        className="w-50 h-50 opacity-10"
+                        className="w-12 h-12 sm:w-16 sm:h-16 opacity-10 text-rose-500"
                         strokeWidth={1.5}
                     />
                 </div>
@@ -232,7 +242,14 @@ function MatchCard({ match }: { match: any }) {
                     >
                         <div className="w-16 h-16 md:w-20 md:h-20 mb-3 rounded-full bg-gradient-to-br from-rose-100 to-rose-50 dark:from-rose-900/40 dark:to-rose-800/20 overflow-hidden border-[3px] border-white dark:border-[#1A1B23] shadow-md mx-auto group-hover/client:border-rose-300 dark:group-hover/client:border-rose-900 transition-all duration-300 group-hover/client:scale-105">
                             {match.clientB.profilePhoto ? (
-                                <img src={match.clientB.profilePhoto} alt="B" className="w-full h-full object-cover" />
+                                <Image 
+                                    src={match.clientB.profilePhoto} 
+                                    alt="B" 
+                                    width={80} 
+                                    height={80} 
+                                    className="w-full h-full object-cover" 
+                                    loading="lazy"
+                                />
                             ) : (
                                 <User className="w-8 h-8 m-auto text-rose-500 mt-4 md:mt-5" strokeWidth={1.5} />
                             )}

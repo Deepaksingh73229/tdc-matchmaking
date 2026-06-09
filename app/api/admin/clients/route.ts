@@ -29,7 +29,6 @@ import {
     CLIENT_ADMIN_PROJECTION,
 } from "@/app/api/_lib/api-helpers";
 
-// ─── GET ──────────────────────────────────────────────────────────────────────
 
 export async function GET(req: Request) {
     try {
@@ -41,7 +40,6 @@ export async function GET(req: Request) {
         const withMatches = searchParams.get("withMatches") === "true";
         const matchLimit = Math.min(10, Math.max(1, Number(searchParams.get("matchLimit") ?? 5)));
 
-        // ── Single client detail ─────────────────────────────────────────────────
         if (clientId) {
             if (!isValidObjectId(clientId)) return badRequest("Invalid client id.");
 
@@ -63,7 +61,6 @@ export async function GET(req: Request) {
             return ok({ client, suggestions });
         }
 
-        // ── Paginated list ───────────────────────────────────────────────────────
         const page = Math.max(1, Number(searchParams.get("page") ?? 1));
         const limit = Math.min(50, Math.max(1, Number(searchParams.get("limit") ?? 20)));
         const status = searchParams.get("status");  // Pending | Searching | On Hold | Matched
@@ -120,7 +117,6 @@ export async function GET(req: Request) {
     }
 }
 
-// ─── PUT — admin updates a client field (e.g. statusTag override) ─────────────
 
 export async function PUT(req: Request) {
     try {
@@ -137,14 +133,12 @@ export async function PUT(req: Request) {
         const body = await req.json();
         const { action, ...fields } = body;
 
-        // ── Special action: verify ────────────────────────────────────────────────
         if (action === "verify") {
             const result = await verifyClientProfile(clientId);
             if (!result.success) return badRequest(result.error ?? "Verification failed.");
             return ok({ message: "Client profile verified and embedding generated." });
         }
 
-        // ── Special action: statusTag override ───────────────────────────────────
         const ALLOWED_ADMIN_FIELDS = new Set([
             "statusTag",
             "firstName",

@@ -26,7 +26,6 @@ import {
     CLIENT_PRIVATE_PROJECTION,
 } from "@/app/api/_lib/api-helpers";
 
-// ─── GET ──────────────────────────────────────────────────────────────────────
 
 export async function GET(req: Request) {
     try {
@@ -36,7 +35,6 @@ export async function GET(req: Request) {
         const { searchParams } = new URL(req.url);
         const matchId = searchParams.get("id");
 
-        // ── Single match detail ──────────────────────────────────────────────────
         if (matchId) {
             if (!isValidObjectId(matchId)) return badRequest("Invalid match id.");
 
@@ -58,7 +56,6 @@ export async function GET(req: Request) {
             });
         }
 
-        // ── Paginated list ───────────────────────────────────────────────────────
         const page = Math.max(1, Number(searchParams.get("page") ?? 1));
         const limit = Math.min(50, Math.max(1, Number(searchParams.get("limit") ?? 20)));
         const status = searchParams.get("status"); // Proposed | Connected | Rejected | Archived
@@ -94,7 +91,6 @@ export async function GET(req: Request) {
     }
 }
 
-// ─── POST — propose a match ───────────────────────────────────────────────────
 
 export async function POST(req: Request) {
     try {
@@ -104,7 +100,6 @@ export async function POST(req: Request) {
         const body = await req.json();
         const { clientA_Id, clientB_Id, type = "proposal" } = body;
 
-        // ── Validate IDs ─────────────────────────────────────────────────────────
         if (!isValidObjectId(clientA_Id) || !isValidObjectId(clientB_Id)) {
             return badRequest("Both 'clientA_Id' and 'clientB_Id' must be valid ObjectIds.");
         }
@@ -112,7 +107,6 @@ export async function POST(req: Request) {
             return badRequest("Cannot propose a match between a client and themselves.");
         }
 
-        // ── Route to the correct server action ───────────────────────────────────
         if (type === "suggestion") {
             // Informal teaser — no Match document created
             const { message, matchName } = body;
@@ -140,7 +134,6 @@ export async function POST(req: Request) {
     }
 }
 
-// ─── PUT — archive a match ────────────────────────────────────────────────────
 
 export async function PUT(req: Request) {
     try {
@@ -177,7 +170,6 @@ export async function PUT(req: Request) {
     }
 }
 
-// ─── DELETE — hard delete (use with extreme caution) ─────────────────────────
 
 export async function DELETE(req: Request) {
     try {

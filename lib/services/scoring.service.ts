@@ -10,7 +10,6 @@
  * Final value is clamped to [0, 100].
  */
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface ScoringProfile {
     city: string;
@@ -30,7 +29,6 @@ export interface ScoreResult {
     penalties: string[];
 }
 
-// ─── Helper ───────────────────────────────────────────────────────────────────
 
 function incomeCompatible(a?: number, b?: number): boolean {
     if (!a || !b) return true; // unknown → no penalty
@@ -45,7 +43,6 @@ function sharedLanguages(a?: string[], b?: string[]): string[] {
     return a.filter((l) => setB.has(l.toLowerCase()));
 }
 
-// ─── Main scorer ─────────────────────────────────────────────────────────────
 
 /**
  * @param target  - The client we are finding matches FOR
@@ -59,7 +56,6 @@ export function calculateWeightedScore(
     const reasons: string[] = [];
     const penalties: string[] = [];
 
-    // ── 1. Location / Relocation  (max +20, min -10) ─────────────────────────
     if (target.city === candidate.city) {
         score += 20;
         reasons.push(`Both live in ${target.city}.`);
@@ -77,7 +73,6 @@ export function calculateWeightedScore(
         penalties.push("Both are in different cities and neither is open to relocation.");
     }
 
-    // ── 2. Family Planning  (max +20, min -30) ───────────────────────────────
     const kidsA = target.wantKids;
     const kidsB = candidate.wantKids;
 
@@ -97,7 +92,6 @@ export function calculateWeightedScore(
         reasons.push("Family planning is open for discussion.");
     }
 
-    // ── 3. Religion / Community  (max +10) ───────────────────────────────────
     if (target.religion && target.religion === candidate.religion) {
         score += 10;
         reasons.push(`Shared religious background (${target.religion}).`);
@@ -109,7 +103,6 @@ export function calculateWeightedScore(
         }
     }
 
-    // ── 4. Income Compatibility  (max +10, min -10) ──────────────────────────
     if (target.income_lpa && candidate.income_lpa) {
         if (incomeCompatible(target.income_lpa, candidate.income_lpa)) {
             score += 10;
@@ -120,7 +113,6 @@ export function calculateWeightedScore(
         }
     }
 
-    // ── 5. Shared Languages  (max +5) ────────────────────────────────────────
     const shared = sharedLanguages(target.languages, candidate.languages);
     if (shared.length >= 2) {
         score += 5;
@@ -130,7 +122,6 @@ export function calculateWeightedScore(
         reasons.push(`Share a common language (${shared[0]}).`);
     }
 
-    // ── 6. Pets Alignment  (max +5) ──────────────────────────────────────────
     if (
         target.openToPets !== undefined &&
         candidate.openToPets !== undefined &&
@@ -144,7 +135,6 @@ export function calculateWeightedScore(
         }
     }
 
-    // ── 7. Marital Status Parity  (max +5) ───────────────────────────────────
     if (target.maritalStatus && candidate.maritalStatus) {
         if (target.maritalStatus === candidate.maritalStatus) {
             score += 5;
@@ -156,7 +146,6 @@ export function calculateWeightedScore(
         }
     }
 
-    // ── Clamp ─────────────────────────────────────────────────────────────────
     const finalScore = Math.max(0, Math.min(100, score));
 
     return { score: finalScore, reasons, penalties };
